@@ -37,7 +37,8 @@ public class CommonConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins(props.allowedOrigins().toArray(String[]::new))
+                // 패턴 허용: 예) https://*.vercel.app
+                .allowedOriginPatterns(props.allowedOrigins().toArray(String[]::new))
                 .allowedMethods("GET", "POST", "PATCH", "OPTIONS")
                 .allowedHeaders("*");
     }
