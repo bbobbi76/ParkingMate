@@ -11,9 +11,9 @@ export function shortName(name) {
 function markerHtml(lot, selected) {
   const lv = LEVEL[lot.level] ?? LEVEL.UNKNOWN
   const cls = `pin ${lv.cls}${selected ? ' sel' : ''}${lot.incentive ? ' gift' : ''}`
-  // 면수·상태를 모르는 곳은 이름만 작게 (지도가 덜 복잡하게)
-  if (lot.level === 'UNKNOWN' && !selected) {
-    return `<div class="${cls} slim"><span>${shortName(lot.name)}</span></div>`
+  // 이용권 주차장과 선택한 곳만 크게. 나머지는 상태색 테두리의 작은 이름표 (시내에 몰려 있어 겹침 방지)
+  if (!lot.incentive && !selected) {
+    return `<div class="${cls} slim" title="${lot.name} ${lv.word}"><span>${shortName(lot.name)}</span></div>`
   }
   const label = lot.remaining != null && lot.level !== 'CLOSED' ? `${lot.remaining}` : lv.word
   return `<div class="${cls}"><b>${label}</b><span>${shortName(lot.name)}</span></div>`
@@ -85,7 +85,9 @@ export default function LotMap({ lots, selected, onSelect, height = 340 }) {
         const o = new mm.kakao.maps.CustomOverlay({
           position: new mm.kakao.maps.LatLng(lat, lng),
           content: el.firstChild,
-          yAnchor: 1,
+          // 위치 맞춤은 CSS(.pin transform)가 한다 → 카카오 기준점은 왼쪽 위로
+          xAnchor: 0,
+          yAnchor: 0,
           zIndex: z,
         })
         o.setMap(mm.m)
