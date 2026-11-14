@@ -27,7 +27,7 @@ export default function ShuttlePage() {
               <br />약 {r.intervalMinutes}분마다 · 버스 {r.busCount}대 순환 · 무료
             </p>
             <p className="muted">
-              {r.runningNow ? '지금 운행 중이에요.' : `다음 운행일: ${r.serviceDate}`}
+              {r.runningNow ? '운행 중 · 정류장별 다음 출발' : `운행 시간 아님 · 다음 운행 ${r.serviceDate.slice(5).replace('-', '월 ')}일`}
             </p>
             <ol className="route">
               {r.stops.map((s) => (

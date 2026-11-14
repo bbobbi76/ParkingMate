@@ -31,7 +31,7 @@ export default function VoucherPage() {
   return (
     <Layout back={`/p/${v.lotCode}`}>
       <section className={`voucher${used ? ' used' : ''}`}>
-        <p className="eyebrow">{used ? '사용 완료' : '오늘만 쓸 수 있어요'}</p>
+        <p className="eyebrow">{used ? '사용 완료' : '발급 당일 사용'}</p>
         <h1>{v.benefitName}</h1>
         {v.benefitIsExample && <p className="tag">예시 혜택</p>}
         <div className="voucher-code" aria-label={`이용권 번호 ${v.code.split('').join(' ')}`}>
@@ -54,9 +54,9 @@ export default function VoucherPage() {
         </dl>
         {!used && (
           <p className="howto">
-            축제장 <strong>안내소</strong>에서 이 화면을 보여 주세요.
+            축제장 <strong>안내소</strong>에 이 화면 제시
             <br />
-            화면을 캡처해 두셔도 됩니다.
+            (캡처 화면도 사용 가능)
           </p>
         )}
       </section>
