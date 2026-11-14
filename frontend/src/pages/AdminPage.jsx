@@ -13,6 +13,8 @@ const STATUS = [
 ]
 
 function readKey() {
+  // 개발 서버에서만: /admin?devlogin 으로 로컬 테스트 키 자동 입력 (화면 캡처용). 배포 빌드에는 포함되지 않음.
+  if (import.meta.env.DEV && new URLSearchParams(location.search).has('devlogin')) return 'dev-admin'
   try {
     return sessionStorage.getItem(KEY) ?? ''
   } catch {
@@ -278,7 +280,10 @@ function PostersTab() {
 
 export default function AdminPage() {
   const [adminKey, setAdminKey] = useState(readKey)
-  const [tab, setTab] = useState('lots')
+  const [tab, setTab] = useState(() => {
+    const t = new URLSearchParams(location.search).get('tab')
+    return ['lots', 'vouchers', 'posters'].includes(t) ? t : 'lots'
+  })
   if (!adminKey) return <Login onLogin={setAdminKey} />
   return (
     <>
