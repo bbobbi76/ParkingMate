@@ -1,0 +1,24 @@
+# Render 블루프린트: 대시보드 → New → Blueprint → 이 저장소 선택
+services:
+  - type: web
+    name: parkingmate-api
+    runtime: docker
+    rootDir: backend
+    plan: free
+    region: singapore
+    healthCheckPath: /api/now
+    envVars:
+      - key: DATABASE_URL        # 예) jdbc:postgresql://ep-xxx.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+        sync: false
+      - key: DATABASE_USERNAME
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: SENSOR_KEY
+        generateValue: true
+      - key: ALLOWED_ORIGINS     # 예) https://parkingmate.vercel.app
+        sync: false
+      - key: DEMO_CLOCK          # 시연 때만 예) 2027-01-16T09:30 , 평소 비움
+        sync: false

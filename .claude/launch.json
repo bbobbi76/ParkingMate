@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "backend",
+      "runtimeExecutable": "C:\\Users\\lim\\Desktop\\ParkingMate\\backend\\gradlew.bat",
+      "runtimeArgs": ["-p", "C:\\Users\\lim\\Desktop\\ParkingMate\\backend", "bootRun", "--console=plain", "--args=--app.demo-clock=2027-01-16T09:30"],
+      "port": 8787
+    },
+    {
+      "name": "frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "C:\\Users\\lim\\Desktop\\ParkingMate\\frontend", "run", "dev", "--", "--port", "5173", "--strictPort"],
+      "port": 5173
+    }
+  ]
+}

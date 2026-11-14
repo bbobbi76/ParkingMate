@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: parkingmate
+  datasource:
+    url: ${DATABASE_URL:jdbc:h2:file:./data/parkingmate;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH}
+    username: ${DATABASE_USERNAME:sa}
+    password: ${DATABASE_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+server:
+  port: ${PORT:8787}
+
+app:
+  admin-key: ${ADMIN_KEY:dev-admin}
+  sensor-key: ${SENSOR_KEY:dev-sensor}
+  allowed-origins: ${ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
+  zone: Asia/Seoul
+  # 시연용 고정 시각(예: 2027-01-16T10:00). 비우면 실제 시각.
+  demo-clock: ${DEMO_CLOCK:}
+  voucher:
+    sensor-window-minutes: 90
+  sensor:
+    stale-minutes: 15

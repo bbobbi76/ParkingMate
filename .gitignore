@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+backend/build/
+backend/.gradle/
+backend/data/
+*.log
+.DS_Store
+__pycache__/
+
+# 센서 브리지 로컬 상태
+sensor/queue.jsonl
+sensor/bridge_state.json
+frontend/.env.local
