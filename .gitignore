@@ -14,3 +14,5 @@ __pycache__/
 sensor/queue.jsonl
 sensor/bridge_state.json
 frontend/.env.local
+backend/bin/
+.vscode/
