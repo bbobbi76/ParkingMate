@@ -25,6 +25,14 @@ function readKey() {
 function Login({ onLogin }) {
   const [k, setK] = useState('')
   const [err, setErr] = useState(null)
+  const [checking, setChecking] = useState(true)
+  // 서버가 키 없이 열려 있으면(ADMIN_OPEN) 바로 들어감
+  useEffect(() => {
+    api.admin
+      .summary('open')
+      .then(() => onLogin('open'))
+      .catch(() => setChecking(false))
+  }, [onLogin])
   const submit = async (e) => {
     e.preventDefault()
     try {
@@ -38,6 +46,13 @@ function Login({ onLogin }) {
     } catch (e2) {
       setErr(e2.message)
     }
+  }
+  if (checking) {
+    return (
+      <main className="page narrow">
+        <p className="muted">확인 중</p>
+      </main>
+    )
   }
   return (
     <main className="page narrow">
@@ -290,7 +305,7 @@ export default function AdminPage() {
       <header className="top admin no-print">
         <div className="top-inner">
           <span className="brand">현장 관리</span>
-          <button
+          {adminKey !== 'open' && <button
             className="link"
             onClick={() => {
               try {
@@ -302,7 +317,7 @@ export default function AdminPage() {
             }}
           >
             나가기
-          </button>
+          </button>}
         </div>
         <nav className="tabs">
           {[

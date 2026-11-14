@@ -138,6 +138,11 @@ class FlowTest {
     }
 
     @Test
+    void adminIsLockedByDefault() throws Exception {
+        mvc.perform(get("/api/admin/summary")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void shuttleShowsSaturdayTimes() throws Exception {
         // 시연 시계 2027-01-16(토) 09:59부터 흐름
         mvc.perform(get("/api/shuttle"))

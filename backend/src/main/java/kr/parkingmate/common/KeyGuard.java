@@ -16,6 +16,9 @@ public class KeyGuard {
     }
 
     public void requireAdmin(String key) {
+        if (props.adminOpen()) {
+            return;
+        }
         if (!matches(props.adminKey(), key)) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, "ADMIN_KEY", "관리자 키가 올바르지 않습니다.");
         }

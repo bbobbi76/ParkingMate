@@ -17,6 +17,8 @@ server:
 
 app:
   admin-key: ${ADMIN_KEY:dev-admin}
+  # true: 관리 화면 키 없이 사용 (시연 기간만). 끝나면 false
+  admin-open: ${ADMIN_OPEN:false}
   sensor-key: ${SENSOR_KEY:dev-sensor}
   allowed-origins: ${ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
   zone: Asia/Seoul
