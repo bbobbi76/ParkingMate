@@ -4,6 +4,7 @@
   python tools/demo_setup.py [--api http://127.0.0.1:8787] [--key dev-admin]
 """
 import argparse
+import os
 
 import requests
 
@@ -26,7 +27,8 @@ SCENE = {
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--api", default="http://127.0.0.1:8787")
-    p.add_argument("--key", default="dev-admin")
+    # 배포 서버: 환경 변수 ADMIN_KEY 에 Render의 ADMIN_KEY 값을 넣고 실행 (키를 명령어·채팅에 남기지 않기)
+    p.add_argument("--key", default=os.environ.get("ADMIN_KEY", "dev-admin"))
     a = p.parse_args()
     for code, body in SCENE.items():
         r = requests.patch(f"{a.api}/api/admin/lots/{code}", json=body, headers={"X-Admin-Key": a.key}, timeout=5)
