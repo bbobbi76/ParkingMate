@@ -138,6 +138,18 @@ class FlowTest {
     }
 
     @Test
+    void demoResetLetsSamePlateBeUsedAgain() throws Exception {
+        sensor("{\"events\":[{\"deviceId\":\"entry-stm32\",\"seq\":1,\"direction\":\"IN\"}]}");
+        String req = "{\"lotCode\":\"wirari\",\"plateNumber\":\"12가3456\"}";
+        mvc.perform(post("/api/vouchers").contentType(MediaType.APPLICATION_JSON).content(req)).andExpect(status().isCreated());
+        mvc.perform(post("/api/admin/demo/reset").header("X-Admin-Key", "test-admin"))
+                .andExpect(jsonPath("$.deletedVouchers", is(1)));
+        mvc.perform(get("/api/lots/wirari")).andExpect(jsonPath("$.currentCount", is(188)));
+        sensor("{\"events\":[{\"deviceId\":\"entry-stm32\",\"seq\":2,\"direction\":\"IN\"}]}");
+        mvc.perform(post("/api/vouchers").contentType(MediaType.APPLICATION_JSON).content(req)).andExpect(status().isCreated());
+    }
+
+    @Test
     void adminIsLockedByDefault() throws Exception {
         mvc.perform(get("/api/admin/summary")).andExpect(status().isUnauthorized());
     }

@@ -48,6 +48,7 @@ export const api = {
     events: (k, code) => request(`/admin/lots/${encodeURIComponent(code)}/events?limit=20`, { adminKey: k }),
     issue: (k, lotCode, plateNumber) => request('/admin/vouchers', { method: 'POST', body: { lotCode, plateNumber }, adminKey: k }),
     findByPlate: (k, plate) => request(`/admin/vouchers?plate=${encodeURIComponent(plate)}`, { adminKey: k }),
+    demoReset: (k) => request('/admin/demo/reset', { method: 'POST', adminKey: k }),
     redeem: (k, code) => request(`/admin/vouchers/${encodeURIComponent(code)}/redeem`, { method: 'POST', adminKey: k }),
   },
 }

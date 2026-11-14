@@ -246,6 +246,26 @@ function VoucherTab({ adminKey }) {
         </section>
       )}
 
+      <section className="card">
+        <h2>시연 초기화</h2>
+        <p className="muted">리허설에서 발급한 이용권과 센서 기록을 지웁니다. 같은 차량번호로 다시 시연할 수 있어요.</p>
+        <button
+          className="btn big"
+          onClick={async () => {
+            if (!window.confirm('이용권과 센서 기록을 모두 지울까요?')) return
+            try {
+              const r = await api.admin.demoReset(adminKey)
+              setV(null)
+              setMsg(`초기화했어요. 이용권 ${r.deletedVouchers}장, 센서 기록 ${r.deletedEvents}건 삭제`)
+            } catch (err) {
+              setMsg(err.message)
+            }
+          }}
+        >
+          시연 초기화
+        </button>
+      </section>
+
       <form className="card" onSubmit={issue}>
         <h2>직원 대리 발급</h2>
         <p className="muted">휴대폰 사용이 어려운 분께 차량번호로 발급해 드려요.</p>
