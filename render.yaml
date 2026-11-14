@@ -8,9 +8,9 @@ services:
     region: singapore
     healthCheckPath: /api/now
     envVars:
-      - key: DATABASE_URL        # 예) jdbc:postgresql://ep-xxx.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+      - key: DATABASE_URL        # Neon Connect 창의 주소 그대로 (postgresql://... 또는 jdbc:postgresql://...)
         sync: false
-      - key: DATABASE_USERNAME
+      - key: DATABASE_USERNAME   # 주소에 사용자·비밀번호가 들어 있으면 비워 둠
         sync: false
       - key: DATABASE_PASSWORD
         sync: false
