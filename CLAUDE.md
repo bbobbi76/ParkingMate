@@ -12,7 +12,9 @@ KNU RE:RISE 7팀. 축제 임시주차장 남은 자리 표시 + 먼 주차장 �
 - 백엔드 실행(로컬 H2, DB 설치 불필요): `cd backend && ./gradlew bootRun` → http://localhost:8787
 - 백엔드 테스트: `cd backend && ./gradlew test`
 - 프론트: `cd frontend && npm install && npm run dev` → http://localhost:5173
-- 센서 시뮬레이터: `python sensor/simulate.py --lot wirari`
+- 센서 시뮬레이터: `python sensor/simulate.py --count 5 --fast` (위라리 둔치 센서로 전송)
+- 시연 상황 입력: `python tools/demo_setup.py` (배포 서버: `--api https://parkingmate-api.onrender.com`)
+- 배포: 웹 https://parking-mate.vercel.app (Vercel) · 서버 https://parkingmate-api.onrender.com (Render, Swagger `/swagger-ui.html`) · DB Neon. main 에 push 하면 둘 다 자동 배포
 
 ## 원칙
 - 데이터는 실제 출처 기반. 추정·예시 값은 `*_source` 컬럼과 화면 문구로 반드시 구분. 없는 면수는 지어내지 말고 null.
