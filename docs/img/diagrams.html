@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+* { margin: 0; box-sizing: border-box; }
+body { font-family: 'Noto Sans KR', sans-serif; background: #F6F4EF; color: #1B2430; }
+.board { width: 1600px; padding: 56px 64px; }
+h1 { font-size: 30px; font-weight: 700; color: #14365C; margin-bottom: 32px; }
+.row { display: flex; align-items: center; gap: 0; }
+.box { background: #FCFBF8; border: 1.5px solid #D3D7DD; border-top: 6px solid #14365C; border-radius: 10px; padding: 22px 26px; }
+.box h3 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+.box p { font-size: 20px; line-height: 1.5; color: #4A5565; }
+.box.gift { border-top-color: #0B6B4F; }
+.box.busy { border-top-color: #A65200; }
+.arrow { font-size: 40px; color: #14365C; padding: 0 18px; font-weight: 700; }
+.col { display: flex; flex-direction: column; gap: 18px; }
+.step { flex: 1; background: #FCFBF8; border: 1.5px solid #D3D7DD; padding: 26px 22px; min-height: 190px; }
+.step + .step { border-left: none; }
+.step .n { font-size: 24px; font-weight: 900; color: #0B6B4F; }
+.step .t { font-size: 26px; font-weight: 700; margin: 8px 0; }
+.step .d { font-size: 19px; line-height: 1.5; color: #4A5565; }
+.step.key { background: #E3F0EA; border-color: #0B6B4F; }
+.note { margin-top: 22px; font-size: 19px; color: #6B7685; }
+</style></head>
+<body>
+<div class="board" id="architecture">
+<h1>시스템 구조 — 센서에서 휴대폰까지</h1>
+<div class="row">
+<div class="col" style="width:280px;">
+<div class="box"><h3>입구 센서</h3><p>적외선 A·B<br>STM32 · USB</p></div>
+<div class="box"><h3>출구 센서</h3><p>적외선 A·B<br>Pico 2 WH · Wi-Fi</p></div>
+</div>
+<div class="arrow">→</div>
+<div class="box" style="width:260px;"><h3>현장 노트북</h3><p>브리지 프로그램<br>끊겨도 모았다가 재전송</p></div>
+<div class="arrow">→</div>
+<div class="box" style="width:260px;"><h3>서버</h3><p>Spring Boot (Render)<br>PostgreSQL (Neon)</p></div>
+<div class="arrow">→</div>
+<div class="col" style="width:340px;">
+<div class="box gift"><h3>방문객 웹</h3><p>현황판 · QR 화면 · 이용권</p></div>
+<div class="box busy"><h3>현장 관리</h3><p>상태 입력 · 이용권 확인·발급</p></div>
+</div>
+</div>
+<p class="note">A·B 두 줄이 순서대로 끊기면 차 1대 · 같은 기록은 한 번만 반영 · 웹 React (Vercel)</p>
+</div>
+
+<div class="board" id="flow">
+<h1>서비스 흐름 — 먼 주차장에 대면 무료이용권</h1>
+<div class="row" style="align-items:stretch;">
+<div class="step"><p class="n">1</p><p class="t">먼 주차장에 주차</p><p class="d">강 건너 위라리 둔치<br>(화천대교 쪽)</p></div>
+<div class="step"><p class="n">2</p><p class="t">입구 안내판 QR</p><p class="d">휴대폰 카메라로 찍기</p></div>
+<div class="step"><p class="n">3</p><p class="t">센서가 입차 확인</p><p class="d">실제로 들어온 차만</p></div>
+<div class="step key"><p class="n">4</p><p class="t">무료이용권</p><p class="d">눈썰매 등 체험 2회<br>(낚시 제외, 검토 중)</p></div>
+<div class="step"><p class="n">5</p><p class="t">셔틀로 축제장</p><p class="d">안내소에서 이용권 사용</p></div>
+</div>
+<p class="note">휴대폰이 어려운 분은 주차장 직원이 차량번호로 대신 발급 · 입차 1건 = 1장 · 차량당 하루 1장</p>
+</div>
+</body></html>
