@@ -33,7 +33,7 @@ export default function VoucherPage() {
       <section className={`voucher${used ? ' used' : ''}`}>
         <p className="eyebrow">{used ? '사용 완료' : '발급 당일 사용'}</p>
         <h1>{v.benefitName}</h1>
-        {v.benefitIsExample && <p className="tag">예시 혜택</p>}
+        {v.benefitIsExample && <p className="tag">혜택 내용 검토 중</p>}
         <div className="voucher-code" aria-label={`이용권 번호 ${v.code.split('').join(' ')}`}>
           {v.code}
         </div>

@@ -85,7 +85,7 @@ function VoucherForm({ lot }) {
       {benefit && (
         <p>
           <strong>{benefit.name}</strong>
-          {benefit.example && <span className="tag">예시</span>}
+          {benefit.example && <span className="tag">검토 중</span>}
           <br />
           <span className="muted">{benefit.description}</span>
         </p>
