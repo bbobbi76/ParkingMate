@@ -38,18 +38,12 @@ export const api = {
   },
   lot: (code) => request(`/lots/${encodeURIComponent(code)}`),
   shuttle: () => request('/shuttle'),
-  benefits: () => request('/benefits'),
-  issueVoucher: (lotCode, plateNumber) => request('/vouchers', { method: 'POST', body: { lotCode, plateNumber } }),
-  voucher: (code) => request(`/vouchers/${encodeURIComponent(code)}`),
 
   admin: {
     summary: (k) => request('/admin/summary', { adminKey: k }),
     updateLot: (k, code, body) => request(`/admin/lots/${encodeURIComponent(code)}`, { method: 'PATCH', body, adminKey: k }),
     events: (k, code) => request(`/admin/lots/${encodeURIComponent(code)}/events?limit=20`, { adminKey: k }),
     sensors: (k, code) => request(`/admin/lots/${encodeURIComponent(code)}/sensors`, { adminKey: k }),
-    issue: (k, lotCode, plateNumber) => request('/admin/vouchers', { method: 'POST', body: { lotCode, plateNumber }, adminKey: k }),
-    findByPlate: (k, plate) => request(`/admin/vouchers?plate=${encodeURIComponent(plate)}`, { adminKey: k }),
     demoReset: (k) => request('/admin/demo/reset', { method: 'POST', adminKey: k }),
-    redeem: (k, code) => request(`/admin/vouchers/${encodeURIComponent(code)}/redeem`, { method: 'POST', adminKey: k }),
   },
 }

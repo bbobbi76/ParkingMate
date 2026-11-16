@@ -41,7 +41,6 @@ public class ParkingLot {
     @Enumerated(EnumType.STRING)
     private ManualStatus manualStatus;
 
-    private boolean incentive;
     private boolean sensorEnabled;
     private String shuttleStop;
     private String note;
@@ -92,7 +91,6 @@ public class ParkingLot {
     public Integer getOperableCapacity() { return operableCapacity; }
     public int getCurrentCount() { return currentCount; }
     public ManualStatus getManualStatus() { return manualStatus; }
-    public boolean isIncentive() { return incentive; }
     public boolean isSensorEnabled() { return sensorEnabled; }
     public String getShuttleStop() { return shuttleStop; }
     public String getNote() { return note; }

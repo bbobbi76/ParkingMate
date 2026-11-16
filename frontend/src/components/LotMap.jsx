@@ -10,9 +10,9 @@ export function shortName(name) {
 
 function markerHtml(lot, selected) {
   const lv = LEVEL[lot.level] ?? LEVEL.UNKNOWN
-  const cls = `pin ${lv.cls}${selected ? ' sel' : ''}${lot.incentive ? ' gift' : ''}`
-  // 이용권 주차장과 선택한 곳만 크게. 나머지는 상태색 테두리의 작은 이름표 (시내에 몰려 있어 겹침 방지)
-  if (!lot.incentive && !selected) {
+  const cls = `pin ${lv.cls}${selected ? ' sel' : ''}`
+  // 남은 자리 숫자를 아는 곳과 선택한 곳만 크게. 나머지는 상태색 테두리의 작은 이름표 (시내에 몰려 있어 겹침 방지)
+  if (lot.remaining == null && !selected) {
     return `<div class="${cls} slim" title="${lot.name} ${lv.word}"><span>${shortName(lot.name)}</span></div>`
   }
   const label = lot.remaining != null && lot.level !== 'CLOSED' ? `${lot.remaining}` : lv.word

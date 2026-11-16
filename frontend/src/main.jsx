@@ -5,7 +5,6 @@ import 'leaflet/dist/leaflet.css'
 import './style.css'
 import Home from './pages/Home.jsx'
 import LotPage from './pages/LotPage.jsx'
-import VoucherPage from './pages/VoucherPage.jsx'
 import ShuttlePage from './pages/ShuttlePage.jsx'
 import AdminPage from './pages/AdminPage.jsx'
 
@@ -24,7 +23,6 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/p/:code" element={<LotPage />} />
-        <Route path="/v/:code" element={<VoucherPage />} />
         <Route path="/shuttle" element={<ShuttlePage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="*" element={<NotFound />} />

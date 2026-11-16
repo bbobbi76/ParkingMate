@@ -1,19 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { api } from '../api.js'
 import { hhmm, kakaoDirections, usePolling, walkMinutes } from '../lib.js'
 import Layout from '../components/Layout.jsx'
 import { LevelBadge, Remaining } from '../components/LotCard.jsx'
-
-const SAVED = 'pm.voucher'
-
-function savedVoucher() {
-  try {
-    return localStorage.getItem(SAVED)
-  } catch {
-    return null
-  }
-}
 
 function NextShuttle({ stopName }) {
   const [route, setRoute] = useState(null)
@@ -48,76 +38,6 @@ function NextShuttle({ stopName }) {
   )
 }
 
-function VoucherForm({ lot }) {
-  const nav = useNavigate()
-  const [plate, setPlate] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState(null)
-  const [benefit, setBenefit] = useState(null)
-  const existing = savedVoucher()
-
-  useEffect(() => {
-    api.benefits().then((b) => setBenefit(b[0])).catch(() => {})
-  }, [])
-
-  const submit = async (e) => {
-    e.preventDefault()
-    setBusy(true)
-    setError(null)
-    try {
-      const v = await api.issueVoucher(lot.code, plate)
-      try {
-        localStorage.setItem(SAVED, v.code)
-      } catch {
-        /* 저장 안 되면 화면 주소로 대신 */
-      }
-      nav(`/v/${v.code}`)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  return (
-    <section className="card gift-card">
-      <h2>무료이용권 받기</h2>
-      {benefit && (
-        <p>
-          <strong>{benefit.name}</strong>
-          {benefit.example && <span className="tag">검토 중</span>}
-          <br />
-          <span className="muted">{benefit.description}</span>
-        </p>
-      )}
-      {existing && (
-        <p>
-          <Link to={`/v/${existing}`}>이미 받은 이용권 보기 ›</Link>
-        </p>
-      )}
-      <form onSubmit={submit}>
-        <label htmlFor="plate">차량번호</label>
-        <input
-          id="plate"
-          className="plate-input"
-          value={plate}
-          onChange={(e) => setPlate(e.target.value)}
-          placeholder="예) 12가 3456"
-          autoComplete="off"
-          required
-        />
-        {error && <p className="alert" role="alert">{error}</p>}
-        <button className="btn primary big" disabled={busy || plate.trim().length < 7}>
-          {busy ? '확인 중…' : '이용권 받기'}
-        </button>
-      </form>
-      <p className="fine">
-        차량 1대당 하루 1장. 휴대폰 사용이 어려우시면 주차장 직원에게 차량번호를 말씀해 주세요.
-      </p>
-    </section>
-  )
-}
-
 export default function LotPage() {
   const { code } = useParams()
   const { data: lot, error } = usePolling(() => api.lot(code), 10000, [code])
@@ -140,7 +60,7 @@ export default function LotPage() {
   return (
     <Layout back="/">
       <section className="lot-hero">
-        <p className="eyebrow">지금 계신 주차장</p>
+        <p className="eyebrow">주차장 정보</p>
         <h1>{lot.name}</h1>
         <div className="status-line">
           <LevelBadge lot={lot} big />
@@ -153,15 +73,6 @@ export default function LotPage() {
         )}
         {lot.note && <p className="muted">{lot.note}</p>}
       </section>
-
-      {lot.incentive ? (
-        <VoucherForm lot={lot} />
-      ) : (
-        <section className="card">
-          <p>이 주차장은 무료이용권 대상이 아니에요.</p>
-          <Link className="btn ghost" to="/">무료이용권 주차장 보기</Link>
-        </section>
-      )}
 
       <NextShuttle stopName={lot.shuttleStop} />
 

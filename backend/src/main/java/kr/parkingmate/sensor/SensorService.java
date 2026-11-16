@@ -21,7 +21,10 @@ public class SensorService {
 
     public record Result(int accepted, int duplicates, List<String> errors) {}
 
-    public record EventView(String deviceId, long seq, String direction, Instant occurredAt, boolean voucherLinked) {}
+    public record EventView(String deviceId, long seq, String direction, Instant occurredAt) {}
+
+    /** 관리 화면 요약: 오늘 센서가 센 입차·출차 수. */
+    public record Summary(java.time.LocalDate date, long entriesToday, long exitsToday) {}
 
     /** 장치별 연결 상태. online = 최근 staleMinutes 안에 이벤트나 heartbeat가 있었음. */
     public record DeviceView(String deviceId, String gate, Instant lastSeenAt, Long lastSeq, boolean online) {}
@@ -102,6 +105,15 @@ public class SensorService {
         return new Result(accepted, duplicates, errors);
     }
 
+    @Transactional(readOnly = true)
+    public Summary summary() {
+        java.time.LocalDate today = java.time.LocalDate.now(clock);
+        Instant start = today.atStartOfDay(clock.getZone()).toInstant();
+        return new Summary(today,
+                events.countByDirectionAndOccurredAtGreaterThanEqual(VehicleEvent.Direction.IN, start),
+                events.countByDirectionAndOccurredAtGreaterThanEqual(VehicleEvent.Direction.OUT, start));
+    }
+
     /** 이벤트 없이 센서 연결 상태만 알리는 신호. */
     @Transactional
     public void heartbeat(String deviceId) {
@@ -115,7 +127,7 @@ public class SensorService {
         ParkingLot lot = lots.findByCode(lotCode).orElseThrow(() -> ApiException.notFound("주차장"));
         return events.findByLotIdOrderByOccurredAtDesc(lot.getId(), Limit.of(Math.min(limit, 200))).stream()
                 .map(e -> new EventView(e.getDeviceId(), e.getSeq(), e.getDirection().name(),
-                        e.getOccurredAt(), e.getVoucherId() != null))
+                        e.getOccurredAt()))
                 .toList();
     }
 }

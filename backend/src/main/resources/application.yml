@@ -24,7 +24,5 @@ app:
   zone: Asia/Seoul
   # 시연용 고정 시각(예: 2027-01-16T10:00). 비우면 실제 시각.
   demo-clock: ${DEMO_CLOCK:}
-  voucher:
-    sensor-window-minutes: 90
   sensor:
     stale-minutes: 15

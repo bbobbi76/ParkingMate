@@ -1,10 +1,10 @@
 # 화천 Parking Mate — 작업 규칙
 
-KNU RE:RISE 7팀. 축제 임시주차장 남은 자리 표시 + 먼 주차장 주차 시 무료이용권 발급. 상세 기획·ERD·API: `docs/기획문서.md`.
+KNU RE:RISE 7팀. 축제 임시주차장 남은 자리 표시(입·출구 센서 집계) + 셔틀 안내. QR·무료이용권은 2026-11-16 팀 결정으로 제외. 상세 기획·ERD·API: `docs/기획문서.md`.
 마감: 2026-11-17(화) 웹·센서·시연·PPT, 발표 2026-11-21(토) 화천군청 멘토 대상.
 
 ## 구조
-- `backend/` Spring Boot 4 · Java 21 · Gradle. 패키지 `kr.parkingmate.{lot,sensor,shuttle,voucher,common}`. DB 스키마/시드는 Flyway `src/main/resources/db/migration`.
+- `backend/` Spring Boot 4 · Java 21 · Gradle. 패키지 `kr.parkingmate.{lot,sensor,shuttle,common}`. DB 스키마/시드는 Flyway `src/main/resources/db/migration`.
 - `frontend/` React + Vite. 페이지 `src/pages`, API 호출 `src/api.js`.
 - `sensor/` 노트북 브리지(STM32 시리얼·Pico HTTP → 백엔드 JSON), 시뮬레이터.
 
@@ -32,4 +32,4 @@ KNU RE:RISE 7팀. 축제 임시주차장 남은 자리 표시 + 먼 주차장 �
 - AI가 만든 티 금지: 그라데이션·이모지·그림자 카드·장식 아이콘·영문 슬로건 쓰지 않음. 큰 숫자(남은 자리·셔틀 시각) 우선, 한 화면 한 가지 일.
 - 시연: 백엔드 `DEMO_CLOCK=2027-01-16T09:30` 으로 축제 토요일 시각부터 흐르게 실행.
 - 비밀값(ADMIN_KEY, SENSOR_KEY, DB 비밀번호, 카카오 키)은 `.env`/환경 변수에만. 커밋 금지.
-- 같은 센서 이벤트(deviceId+seq)는 한 번만 반영. 이용권은 차량번호당 하루 1장.
+- 같은 센서 이벤트(deviceId+seq)는 한 번만 반영.

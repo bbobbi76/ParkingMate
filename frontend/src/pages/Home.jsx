@@ -7,7 +7,7 @@ import LotMap from '../components/LotMap.jsx'
 
 const FILTERS = [
   { key: 'all', label: '전체' },
-  { key: 'gift', label: '이용권 지급' },
+  { key: 'open', label: '여유 있는 곳' },
   { key: 'shuttle', label: '셔틀 정류장' },
 ]
 
@@ -22,7 +22,6 @@ function LotRow({ lot, selected, onSelect }) {
       <button className="lot-row-main" onClick={() => onSelect(lot.code)}>
         <span className="lot-row-name">
           {lot.name.replace(/ ?임시주차장$/, '')}
-          {lot.incentive && <em className="mark-gift">이용권</em>}
         </span>
         <span className="lot-row-sub">
           {lot.shuttleStop ? `셔틀 ${lot.shuttleStop}` : lot.note ?? '축제장 인근'}
@@ -54,8 +53,7 @@ export default function Home() {
   }, [])
 
   const all = lots ?? []
-  const shown = all.filter((l) => (filter === 'gift' ? l.incentive : filter === 'shuttle' ? !!l.shuttleStop : true))
-  const giftLots = all.filter((l) => l.incentive)
+  const shown = all.filter((l) => (filter === 'open' ? l.level === 'AVAILABLE' : filter === 'shuttle' ? !!l.shuttleStop : true))
   const count = (lv) => all.filter((l) => l.level === lv).length
 
   return (
@@ -71,13 +69,6 @@ export default function Home() {
         <div className="full"><dt>만차</dt><dd>{count('FULL')}</dd></div>
         <div className="unknown"><dt>정보없음</dt><dd>{count('UNKNOWN')}</dd></div>
       </dl>
-
-      {giftLots.length > 0 && (
-        <p className="notice">
-          <b>무료이용권</b>
-          {giftLots.map((l) => l.name.replace(/ ?임시주차장$/, '')).join(' · ')} 주차 차량
-        </p>
-      )}
 
       <LotMap lots={shown} selected={selected} onSelect={select} height={300} />
 

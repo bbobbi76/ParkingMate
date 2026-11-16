@@ -17,7 +17,6 @@ public record LotView(
         Integer remaining,
         Level level,
         String manualStatus,
-        boolean incentive,
         boolean sensorEnabled,
         boolean sensorOnline,
         Instant sensorLastSeenAt,
@@ -35,7 +34,7 @@ public record LotView(
                 lot.getCode(), lot.getName(), lot.getCategory().name(), lot.getLat(), lot.getLng(),
                 lot.getCoordSource(), lot.getCapacity(), lot.getCapacitySource(), lot.getOperableCapacity(),
                 lot.getCurrentCount(), remaining, level(lot, cap, remaining), lot.getManualStatus().name(),
-                lot.isIncentive(), lot.isSensorEnabled(), sensorOnline, sensorLastSeenAt,
+                lot.isSensorEnabled(), sensorOnline, sensorLastSeenAt,
                 lot.getShuttleStop(), lot.getNote(), lot.getDataSource(), lot.getUpdatedAt());
     }
 

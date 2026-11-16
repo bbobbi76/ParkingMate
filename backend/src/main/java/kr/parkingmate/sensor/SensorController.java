@@ -41,6 +41,12 @@ public class SensorController {
         return Map.of("status", "ok");
     }
 
+    @GetMapping("/admin/summary")
+    public SensorService.Summary summary(@RequestHeader(value = "X-Admin-Key", required = false) String key) {
+        guard.requireAdmin(key);
+        return service.summary();
+    }
+
     @GetMapping("/admin/lots/{code}/sensors")
     public List<SensorService.DeviceView> sensors(@RequestHeader(value = "X-Admin-Key", required = false) String key,
                                                   @PathVariable String code) {

@@ -17,7 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -68,59 +67,25 @@ class FlowTest {
     }
 
     @Test
-    void voucherNeedsSensorEntryAndIsOnePerPlatePerDay() throws Exception {
-        String req = "{\"lotCode\":\"wirari\",\"plateNumber\":\"12가 3456\"}";
-        // 입차 기록 없으면 방문객 발급 불가
-        mvc.perform(post("/api/vouchers").contentType(MediaType.APPLICATION_JSON).content(req))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code", is("NO_ENTRY")));
-
+    void adminSeesPerDeviceStatusAndTodayCounts() throws Exception {
         sensor("{\"events\":[{\"deviceId\":\"entry-stm32\",\"seq\":10,\"direction\":\"IN\"}]}");
-
-        MvcResult issued = mvc.perform(post("/api/vouchers").contentType(MediaType.APPLICATION_JSON).content(req))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.plateNumber", is("12가3456")))
-                .andExpect(jsonPath("$.sensorVerified", is(true)))
-                .andReturn();
-        String code = issued.getResponse().getContentAsString().replaceAll(".*\"code\":\"([A-Z0-9]+)\".*", "$1");
-
-        // 같은 차량 두 번째 발급 거부
-        mvc.perform(post("/api/vouchers").contentType(MediaType.APPLICATION_JSON).content(req))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.code", is("ALREADY_ISSUED")));
-
-        // 입차 1건은 이용권 1장에만 쓰임
-        mvc.perform(post("/api/vouchers").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"lotCode\":\"wirari\",\"plateNumber\":\"34나5678\"}"))
-                .andExpect(jsonPath("$.code", is("NO_ENTRY")));
-
-        // 사용 처리, 두 번째는 거부
-        mvc.perform(post("/api/admin/vouchers/" + code + "/redeem").header("X-Admin-Key", "test-admin"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status", is("REDEEMED")));
-        mvc.perform(post("/api/admin/vouchers/" + code + "/redeem").header("X-Admin-Key", "test-admin"))
-                .andExpect(status().isConflict());
-
+        mvc.perform(get("/api/admin/lots/wirari/sensors").header("X-Admin-Key", "test-admin"))
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].gate", is("ENTRY")))
+                .andExpect(jsonPath("$[0].online", is(true)))
+                .andExpect(jsonPath("$[1].gate", is("EXIT")))
+                .andExpect(jsonPath("$[1].online", is(false)));
         mvc.perform(get("/api/admin/summary").header("X-Admin-Key", "test-admin"))
-                .andExpect(jsonPath("$.issued", is(1)))
-                .andExpect(jsonPath("$.redeemed", is(1)))
-                .andExpect(jsonPath("$.entriesToday", is(1)));
+                .andExpect(jsonPath("$.entriesToday", is(1)))
+                .andExpect(jsonPath("$.exitsToday", is(0)));
     }
 
     @Test
-    void staffCanIssueWithoutSensorAndNearLotsHaveNoVoucher() throws Exception {
-        mvc.perform(post("/api/admin/vouchers").header("X-Admin-Key", "test-admin")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"lotCode\":\"wirari\",\"plateNumber\":\"서울12가3456\"}"))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.channel", is("STAFF")));
+    void voucherApiIsGone() throws Exception {
         mvc.perform(post("/api/vouchers").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"lotCode\":\"hwacheon-elem\",\"plateNumber\":\"12가3456\"}"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code", is("NOT_INCENTIVE")));
-        mvc.perform(post("/api/vouchers").contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"lotCode\":\"wirari\",\"plateNumber\":\"abc\"}"))
-                .andExpect(jsonPath("$.code", is("PLATE")));
+                        .content("{\"lotCode\":\"wirari\",\"plateNumber\":\"12가3456\"}"))
+                .andExpect(status().is4xxClientError());
+        mvc.perform(get("/api/lots/wirari")).andExpect(jsonPath("$.incentive").doesNotExist());
     }
 
     @Test
@@ -138,15 +103,14 @@ class FlowTest {
     }
 
     @Test
-    void demoResetLetsSamePlateBeUsedAgain() throws Exception {
+    void demoResetClearsSensorEventsAndRestoresStartCount() throws Exception {
         sensor("{\"events\":[{\"deviceId\":\"entry-stm32\",\"seq\":1,\"direction\":\"IN\"}]}");
-        String req = "{\"lotCode\":\"wirari\",\"plateNumber\":\"12가3456\"}";
-        mvc.perform(post("/api/vouchers").contentType(MediaType.APPLICATION_JSON).content(req)).andExpect(status().isCreated());
         mvc.perform(post("/api/admin/demo/reset").header("X-Admin-Key", "test-admin"))
-                .andExpect(jsonPath("$.deletedVouchers", is(1)));
+                .andExpect(jsonPath("$.deletedEvents", is(1)));
         mvc.perform(get("/api/lots/wirari")).andExpect(jsonPath("$.currentCount", is(188)));
-        sensor("{\"events\":[{\"deviceId\":\"entry-stm32\",\"seq\":2,\"direction\":\"IN\"}]}");
-        mvc.perform(post("/api/vouchers").contentType(MediaType.APPLICATION_JSON).content(req)).andExpect(status().isCreated());
+        // 초기화 뒤 같은 seq 를 다시 보내도 새로 센다(기록이 지워졌으므로)
+        sensor("{\"events\":[{\"deviceId\":\"entry-stm32\",\"seq\":1,\"direction\":\"IN\"}]}");
+        mvc.perform(get("/api/lots/wirari")).andExpect(jsonPath("$.currentCount", is(189)));
     }
 
     @Test

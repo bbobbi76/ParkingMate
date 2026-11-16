@@ -12,10 +12,7 @@ public record AppProperties(
         List<String> allowedOrigins,
         String zone,
         String demoClock,
-        Voucher voucher,
         Sensor sensor) {
-
-    public record Voucher(int sensorWindowMinutes) {}
 
     public record Sensor(int staleMinutes) {}
 }
