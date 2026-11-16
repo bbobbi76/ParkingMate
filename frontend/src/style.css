@@ -11,8 +11,6 @@
   --navy: #14365c;
   --navy-2: #0f2a48;
   --navy-soft: #e8eef6;
-  --gift: #0b6b4f;
-  --gift-soft: #e6f3ee;
   --ok: #157f3b;
   --ok-soft: #e5f4ea;
   --busy: #a65200;
@@ -88,7 +86,6 @@ input, select {
   border: 2px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink);
 }
 input:focus, select:focus { border-color: var(--navy); }
-.plate-input { font-size: 1.6rem; font-weight: 700; letter-spacing: .06em; text-align: center; min-height: 68px; }
 
 .alert { background: var(--full-soft); color: var(--full); border-left: 4px solid var(--full); padding: 12px 14px; border-radius: 6px; font-weight: 600; }
 .alert.info { background: var(--navy-soft); color: var(--navy); border-color: var(--navy); }
@@ -117,8 +114,6 @@ input:focus, select:focus { border-color: var(--navy); }
 .tally dd { margin: 0; font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; }
 .tally .ok dd { color: var(--ok); } .tally .busy dd { color: var(--busy); } .tally .full dd { color: var(--full); } .tally .unknown dd { color: var(--ink-3); }
 
-.notice { display: flex; gap: 10px; align-items: baseline; margin: 0 0 12px; padding: 10px 14px; background: var(--paper); border: 1px solid var(--line); border-left: 4px solid var(--gift); border-radius: 6px; font-size: .92rem; color: var(--ink-2); }
-.notice b { flex: none; color: var(--gift); }
 
 .map { width: 100%; border-radius: 8px; border: 1px solid var(--line); overflow: hidden; background: #e9edf1; }
 
@@ -135,7 +130,6 @@ input:focus, select:focus { border-color: var(--navy); }
 .lot-row-main { flex: 1; min-width: 0; text-align: left; background: none; border: 0; padding: 14px 12px; cursor: pointer; color: inherit; }
 .lot-row-name { display: block; font-weight: 700; font-size: 1.05rem; }
 .lot-row-sub { display: block; font-size: .85rem; color: var(--ink-3); margin-top: 2px; }
-.mark-gift { font-style: normal; font-size: .7rem; font-weight: 800; color: #fff; background: var(--gift); padding: 1px 6px; border-radius: 3px; margin-left: 6px; vertical-align: 2px; }
 .lot-row-num { flex: none; min-width: 96px; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; padding: 8px 14px; text-decoration: none; color: var(--ink); border-left: 1px solid var(--line-2); }
 .lot-row-num strong { font-size: 1.7rem; font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .st { font-size: .78rem; font-weight: 800; }
@@ -158,37 +152,20 @@ input:focus, select:focus { border-color: var(--navy); }
 .pin.closed, .pin.unknown { border-color: #8a94a3; } .pin.unknown b { color: var(--ink-3); font-size: 12px; }
 .pin.slim { padding: 1px 6px; border-width: 1.5px; opacity: .92; }
 .pin.slim span { font-size: 11px; color: var(--ink-2); }
-.pin.slim.gift::before { top: -12px; }
-.pin.gift { box-shadow: 0 0 0 3px var(--gift-soft); }
-.pin.gift::before { content: '이용권'; position: absolute; top: -10px; right: -10px; background: var(--gift); color: #fff; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 4px; }
 .pin.sel { z-index: 10; background: var(--navy); border-color: var(--navy); }
 .pin.sel b, .pin.sel span { color: #fff; }
 .pin.festival { background: var(--navy); border-color: var(--navy); cursor: default; }
 .pin.festival b { color: #fff; font-size: 14px; }
 
-/* ── 주차장 상세 (QR 접속) ── */
+/* ── 주차장 상세 ── */
 .lot-hero { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 20px; margin-bottom: 14px; }
 .eyebrow { color: var(--ink-3); font-weight: 700; font-size: .85rem; margin: 0 0 4px; }
 .status-line { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .status-line .remain { margin: 0; }
 .card { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin-bottom: 14px; }
-.gift-card { border: 2px solid var(--gift); }
-.gift-card h2 { color: var(--gift); }
 .times { list-style: none; padding: 0; margin: 8px 0 12px; display: flex; gap: 10px; flex-wrap: wrap; }
 .times li { font-size: 1.6rem; font-weight: 800; padding: 6px 16px; border: 2px solid var(--line); border-radius: 8px; }
 .times li:first-child { border-color: var(--navy); color: var(--navy); }
-
-/* ── 이용권 ── */
-.voucher { background: var(--paper); border: 2px solid var(--gift); border-radius: 14px; padding: 26px 20px; text-align: center; }
-.voucher .eyebrow { color: var(--gift); font-size: 1rem; }
-.voucher.used { border-color: var(--closed); filter: grayscale(1); }
-.voucher-code { font-size: 2.6rem; font-weight: 800; letter-spacing: .18em; font-variant-numeric: tabular-nums; margin: 10px 0 14px; color: var(--ink); }
-.voucher-code.small { font-size: 1.8rem; margin: 0; }
-.qr { display: block; margin: 0 auto 16px; image-rendering: pixelated; }
-.kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; text-align: left; max-width: 340px; margin: 0 auto; }
-.kv dt { color: var(--ink-3); }
-.kv dd { margin: 0; font-weight: 700; }
-.howto { margin-top: 18px; background: var(--gift-soft); border-radius: 8px; padding: 14px; color: #134535; }
 
 /* ── 셔틀 ── */
 .big-line { font-size: 1.15rem; font-weight: 700; }
@@ -222,21 +199,12 @@ input:focus, select:focus { border-color: var(--navy); }
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
 .stats div { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 12px 6px; text-align: center; font-size: .82rem; color: var(--ink-3); }
 .stats b { display: block; font-size: 1.7rem; color: var(--ink); }
-.voucher-mini.used { opacity: .6; }
-
-/* ── QR 안내판 인쇄 ── */
-.poster { background: #fff; border: 1px solid var(--line); margin: 20px 0; padding: 40px 30px; text-align: center; }
-.poster-top { font-size: 1.4rem; font-weight: 700; color: var(--ink-2); }
-.poster h1 { font-size: 2.6rem; color: var(--gift); margin: 4px 0 20px; }
-.poster ol { text-align: left; max-width: 420px; margin: 16px auto; font-size: 1.3rem; font-weight: 700; line-height: 1.8; }
-.poster-lot { font-size: 1.5rem; font-weight: 800; border-top: 2px solid var(--ink); padding-top: 14px; margin-top: 20px; }
-.poster-help { font-size: 1.1rem; color: var(--ink-2); }
+.stats.two { grid-template-columns: repeat(2, 1fr); margin: 8px 0 12px; }
 
 @media print {
   body { background: #fff; }
   .no-print, .top, .foot { display: none !important; }
   .page { padding: 0; max-width: none; }
-  .poster { border: 0; margin: 0; page-break-after: always; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
 }
 
 @media (max-width: 480px) {
@@ -252,3 +220,49 @@ input:focus, select:focus { border-color: var(--navy); }
 .lot-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
 .remain { margin: 6px 0 2px; color: var(--ink-2); }
 .remain strong { font-size: 2.2rem; color: var(--ink); font-weight: 800; letter-spacing: -0.02em; vertical-align: -3px; font-variant-numeric: tabular-nums; }
+
+/* ── 먼 주차장 혜택 안내 (지급은 화천군) ── */
+.notice { display: flex; gap: 10px; align-items: baseline; margin: 0 0 12px; padding: 10px 14px; background: var(--paper); border: 1px solid var(--line); border-left: 4px solid var(--ok); border-radius: 6px; font-size: .92rem; color: var(--ink-2); }
+.notice b { flex: none; color: var(--ok); }
+.mark-benefit { font-style: normal; font-size: .7rem; font-weight: 800; color: var(--ok); border: 1.5px solid var(--ok); padding: 0 5px; border-radius: 3px; margin-left: 6px; vertical-align: 2px; }
+.card.benefit { border-left: 4px solid var(--ok); }
+.card.benefit h2 { color: var(--ok); }
+
+/* ── 셔틀 ── */
+.live { font-weight: 700; color: var(--ok); margin: 0 0 10px; }
+.route .dot.fest { border-color: var(--ok); background: var(--ok); }
+.route-body { display: flex; flex-direction: column; }
+.soon { color: var(--ink); }
+.soon b { color: var(--navy); font-size: 1.15em; }
+.ride { color: var(--ink-3); font-size: .9rem; }
+.pin.stop { border-color: var(--navy); padding: 1px 6px; }
+.pin.stop span { color: var(--navy); font-size: 11px; }
+.pin.stop.fest { border-color: var(--ok); }
+.pin.stop.fest span { color: var(--ok); font-weight: 800; }
+.pin.bus { background: var(--navy); border-color: var(--navy); cursor: default; }
+.pin.bus b { color: #fff; font-size: 13px; }
+.pin.bus span { color: #dce6f2; font-size: 11px; }
+
+/* ── 축제장 장소 ── */
+.seg-tabs.five { grid-template-columns: repeat(5, 1fr); }
+.pin.place { padding: 2px 7px; border-width: 2px; }
+.pin.place span { font-size: 11px; font-weight: 700; color: var(--ink); }
+.pin.place.sel { background: var(--navy); border-color: var(--navy); }
+.pin.place.sel span { color: #fff; }
+.c-fish { --c: #0b5fa5; } .c-snow { --c: #5b4bb7; } .c-culture { --c: #8a4b00; } .c-food { --c: #b0302a; } .c-info { --c: #157f3b; } .c-etc { --c: #4a5565; }
+.pin.place:not(.sel) { border-color: var(--c); }
+.place-list { list-style: none; margin: 10px 0; padding: 0; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.place-list li { display: flex; align-items: center; gap: 10px; padding: 0 12px 0 0; border-bottom: 1px solid var(--line-2); scroll-margin-top: 120px; }
+.place-list li:last-child { border-bottom: 0; }
+.place-list li.selected { background: var(--navy-soft); }
+.place-main { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; background: none; border: 0; padding: 12px; cursor: pointer; color: inherit; font: inherit; }
+.place-main strong { font-size: 1.05rem; }
+.place-main .desc { font-size: .88rem; color: var(--ink-2); }
+.place-main .fee { font-size: .85rem; color: var(--ink-3); }
+.cat { font-size: .72rem; font-weight: 800; color: var(--c); border: 1.5px solid var(--c); border-radius: 3px; padding: 0 5px; }
+.btn.small { min-height: 44px; padding: 0 14px; font-size: .9rem; flex: none; }
+.btn.danger { border-color: var(--full); color: var(--full); }
+.btn.danger:hover { background: var(--full-soft); }
+.dot-pin { width: 16px; height: 16px; border-radius: 50%; background: var(--c); border: 2px solid #fff; outline: 1.5px solid var(--c); transform: translate(-50%, -50%); cursor: pointer; }
+.dot-pin.static { display: inline-block; transform: none; width: 12px; height: 12px; margin-right: 5px; vertical-align: -1px; cursor: default; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 8px 0 0; font-size: .82rem; color: var(--ink-2); }

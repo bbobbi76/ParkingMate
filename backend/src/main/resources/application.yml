@@ -24,7 +24,7 @@ app:
   zone: Asia/Seoul
   # 시연용 고정 시각(예: 2027-01-16T10:00). 비우면 실제 시각.
   demo-clock: ${DEMO_CLOCK:}
-  voucher:
-    sensor-window-minutes: 90
+  # true: 셔틀을 실제 운행표(토·일 09~18시)와 관계없이 매일 0시부터 계속 도는 것으로 계산(시연용). 실제 운영 시 false
+  shuttle-always: ${SHUTTLE_ALWAYS:true}
   sensor:
     stale-minutes: 15

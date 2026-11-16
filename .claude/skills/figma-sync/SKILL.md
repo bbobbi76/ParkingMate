@@ -14,7 +14,7 @@ description: 화면(frontend) 또는 DB 스키마(backend Flyway)가 바뀌었�
 ## 화면이 바뀌었을 때
 1. 로컬 실행(백엔드 8787, 프론트 5173) + `python tools/demo_setup.py`.
 2. Figma MCP: `create_session`(프론트 fileKey) → Figma 스킬(`get_figma_skill` / figma-use) 확인.
-3. 바뀐 화면만 프레임 갱신: 홈 `/`, 주차장 QR 화면 `/p/wirari`, 이용권 `/v/...`, 셔틀 `/shuttle`, 관리 `/admin`, QR 안내판(인쇄).
+3. 바뀐 화면만 프레임 갱신: 홈 `/`, 주차장 상세 `/p/wirari`, 셔틀 `/shuttle`, 관리 `/admin`.
    프레임 이름은 `01 홈 현황판` 처럼 번호+화면명, 390×844 기준.
 4. 페이지 맨 앞 "변경 기록" 프레임에 날짜·바뀐 점 한 줄 추가.
 

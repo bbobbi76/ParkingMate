@@ -29,9 +29,6 @@ public class VehicleEvent {
     private Instant occurredAt;
     private Instant receivedAt;
 
-    /** 이 입차와 짝지어진 이용권. 입차 1건 = 이용권 최대 1장. */
-    private Long voucherId;
-
     protected VehicleEvent() {}
 
     public VehicleEvent(String deviceId, Long lotId, Direction direction, long seq, Instant occurredAt, Instant receivedAt) {
@@ -43,10 +40,6 @@ public class VehicleEvent {
         this.receivedAt = receivedAt;
     }
 
-    public void claimBy(Long voucherId) {
-        this.voucherId = voucherId;
-    }
-
     public Long getId() { return id; }
     public String getDeviceId() { return deviceId; }
     public Long getLotId() { return lotId; }
@@ -54,5 +47,4 @@ public class VehicleEvent {
     public long getSeq() { return seq; }
     public Instant getOccurredAt() { return occurredAt; }
     public Instant getReceivedAt() { return receivedAt; }
-    public Long getVoucherId() { return voucherId; }
 }

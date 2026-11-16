@@ -1,19 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { api } from '../api.js'
 import { hhmm, kakaoDirections, usePolling, walkMinutes } from '../lib.js'
 import Layout from '../components/Layout.jsx'
 import { LevelBadge, Remaining } from '../components/LotCard.jsx'
-
-const SAVED = 'pm.voucher'
-
-function savedVoucher() {
-  try {
-    return localStorage.getItem(SAVED)
-  } catch {
-    return null
-  }
-}
 
 function NextShuttle({ stopName }) {
   const [route, setRoute] = useState(null)
@@ -27,9 +17,20 @@ function NextShuttle({ stopName }) {
   return (
     <section className="card">
       <h2>셔틀버스 · {stop.name} 정류장</h2>
+      {stop.rideToFestivalMinutes > 0 && (
+        <p className="big-line">셔틀 타면 축제장({stop.alightAt} 하차)까지 약 {stop.rideToFestivalMinutes}분</p>
+      )}
       {stop.next.length > 0 ? (
         <>
-          <p className="muted">{today ? '이 정류장 다음 출발' : `다음 운행: ${route.serviceDate.slice(5).replace('-', '월 ')}일`}</p>
+          <p className="muted">
+            {today
+              ? stop.minutesUntilNext != null && (
+                  <span className="soon">
+                    다음 셔틀 <b>{stop.minutesUntilNext === 0 ? '곧 도착' : `${stop.minutesUntilNext}분 후`}</b>
+                  </span>
+                )
+              : `다음 운행: ${route.serviceDate.slice(5).replace('-', '월 ')}일`}
+          </p>
           <ul className="times">
             {stop.next.map((t) => (
               <li key={t}>{hhmm(t)}</li>
@@ -43,77 +44,7 @@ function NextShuttle({ stopName }) {
         토·일 {hhmm(route.firstDeparture)}~{hhmm(route.lastDeparture)}, 약 {route.intervalMinutes}분 간격.
         정류장별 시각은 추정값이라 교통 상황에 따라 달라질 수 있어요.
       </p>
-      <Link className="btn ghost" to="/shuttle">전체 시간표</Link>
-    </section>
-  )
-}
-
-function VoucherForm({ lot }) {
-  const nav = useNavigate()
-  const [plate, setPlate] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState(null)
-  const [benefit, setBenefit] = useState(null)
-  const existing = savedVoucher()
-
-  useEffect(() => {
-    api.benefits().then((b) => setBenefit(b[0])).catch(() => {})
-  }, [])
-
-  const submit = async (e) => {
-    e.preventDefault()
-    setBusy(true)
-    setError(null)
-    try {
-      const v = await api.issueVoucher(lot.code, plate)
-      try {
-        localStorage.setItem(SAVED, v.code)
-      } catch {
-        /* 저장 안 되면 화면 주소로 대신 */
-      }
-      nav(`/v/${v.code}`)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  return (
-    <section className="card gift-card">
-      <h2>무료이용권 받기</h2>
-      {benefit && (
-        <p>
-          <strong>{benefit.name}</strong>
-          {benefit.example && <span className="tag">검토 중</span>}
-          <br />
-          <span className="muted">{benefit.description}</span>
-        </p>
-      )}
-      {existing && (
-        <p>
-          <Link to={`/v/${existing}`}>이미 받은 이용권 보기 ›</Link>
-        </p>
-      )}
-      <form onSubmit={submit}>
-        <label htmlFor="plate">차량번호</label>
-        <input
-          id="plate"
-          className="plate-input"
-          value={plate}
-          onChange={(e) => setPlate(e.target.value)}
-          placeholder="예) 12가 3456"
-          autoComplete="off"
-          required
-        />
-        {error && <p className="alert" role="alert">{error}</p>}
-        <button className="btn primary big" disabled={busy || plate.trim().length < 7}>
-          {busy ? '확인 중…' : '이용권 받기'}
-        </button>
-      </form>
-      <p className="fine">
-        차량 1대당 하루 1장. 휴대폰 사용이 어려우시면 주차장 직원에게 차량번호를 말씀해 주세요.
-      </p>
+      <Link className="btn ghost" to="/shuttle">셔틀 위치·전체 시간표</Link>
     </section>
   )
 }
@@ -140,7 +71,7 @@ export default function LotPage() {
   return (
     <Layout back="/">
       <section className="lot-hero">
-        <p className="eyebrow">지금 계신 주차장</p>
+        <p className="eyebrow">주차장 정보</p>
         <h1>{lot.name}</h1>
         <div className="status-line">
           <LevelBadge lot={lot} big />
@@ -148,31 +79,32 @@ export default function LotPage() {
         </div>
         {lot.sensorEnabled && (
           <p className="fine">
-            {lot.sensorOnline ? '입구·출구 센서로 실시간 집계 중' : '센서 신호가 잠시 끊겼어요. 직원 확인값을 보여 드려요.'}
+            {lot.sensorOnline ? '센서로 실시간 집계 중' : '센서 신호가 잠시 끊겼어요. 직원 확인값을 보여 드려요.'}
           </p>
         )}
         {lot.note && <p className="muted">{lot.note}</p>}
       </section>
 
-      {lot.incentive ? (
-        <VoucherForm lot={lot} />
-      ) : (
-        <section className="card">
-          <p>이 주차장은 무료이용권 대상이 아니에요.</p>
-          <Link className="btn ghost" to="/">무료이용권 주차장 보기</Link>
+      <section className="card">
+        <h2>이 주차장까지 길찾기</h2>
+        <a className="btn primary big" href={kakaoDirections(lot)} target="_blank" rel="noreferrer">
+          카카오맵으로 길찾기
+        </a>
+        <p className="fine">지금 내 위치에서 이 주차장까지 길을 안내해요. 카카오맵 앱이 있으면 앱으로 열려요. 위치 기준: {lot.coordSource}</p>
+        {!lot.shuttleStop && <p>주차 후 축제장까지 걸어서 약 {walkMinutes(lot)}분 (추정)</p>}
+      </section>
+
+      {lot.incentive && (
+        <section className="card benefit">
+          <h2>이 주차장 이용 혜택 (검토 중)</h2>
+          <p>
+            축제장에서 먼 이 주차장에 차를 대고 셔틀을 이용하시면 화천군에서 체험 프로그램 이용권을 드리는 방안을 검토하고 있어요.
+          </p>
+          <p className="fine">지급 방법·대상은 화천군(축제 운영)에서 정해요. 현장 안내 직원에게 문의해 주세요.</p>
         </section>
       )}
 
       <NextShuttle stopName={lot.shuttleStop} />
-
-      <section className="card">
-        <h2>찾아오는 길</h2>
-        {!lot.shuttleStop && <p>축제장까지 걸어서 약 {walkMinutes(lot)}분 (추정)</p>}
-        <a className="btn" href={kakaoDirections(lot)} target="_blank" rel="noreferrer">
-          카카오맵 길찾기
-        </a>
-        <p className="fine">위치 기준: {lot.coordSource}</p>
-      </section>
     </Layout>
   )
 }

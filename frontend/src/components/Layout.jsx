@@ -11,12 +11,13 @@ export default function Layout({ children, back }) {
             </Link>
           ) : null}
           <Link to="/" className="brand">
-            산천어축제 주차안내
+            산천어축제 안내
           </Link>
         </div>
         <nav className="tabs" aria-label="메뉴">
           <NavLink to="/" end>주차장</NavLink>
           <NavLink to="/shuttle">셔틀버스</NavLink>
+          <NavLink to="/festival">축제장</NavLink>
         </nav>
       </header>
       <main className="page">{children}</main>

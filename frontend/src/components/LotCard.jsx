@@ -28,14 +28,13 @@ export function Remaining({ lot }) {
 export default function LotCard({ lot, selected, onSelect }) {
   return (
     <article
-      className={`lot-card${selected ? ' selected' : ''}${lot.incentive ? ' gift' : ''}`}
+      className={`lot-card${selected ? ' selected' : ''}`}
       onClick={() => onSelect?.(lot.code)}
     >
       <div className="lot-head">
         <h3>{lot.name}</h3>
         <LevelBadge lot={lot} />
       </div>
-      {lot.incentive && <p className="gift-line">여기 주차하면 무료이용권</p>}
       <Remaining lot={lot} />
       <p className="meta">
         {CATEGORY[lot.category]}

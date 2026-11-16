@@ -6,6 +6,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import kr.parkingmate.common.ApiException;
+import kr.parkingmate.common.AppProperties;
 import kr.parkingmate.lot.ParkingLot;
 import kr.parkingmate.lot.ParkingLotRepository;
 import org.springframework.data.domain.Limit;
@@ -20,19 +21,40 @@ public class SensorService {
 
     public record Result(int accepted, int duplicates, List<String> errors) {}
 
-    public record EventView(String deviceId, long seq, String direction, Instant occurredAt, boolean voucherLinked) {}
+    public record EventView(String deviceId, long seq, String direction, Instant occurredAt) {}
+
+    /** 관리 화면 요약: 오늘 센서가 센 입차·출차 수. */
+    public record Summary(java.time.LocalDate date, long entriesToday, long exitsToday) {}
+
+    /** 장치별 연결 상태. online = 최근 staleMinutes 안에 이벤트나 heartbeat가 있었음. */
+    public record DeviceView(String deviceId, String gate, Instant lastSeenAt, Long lastSeq, boolean online) {}
 
     private final SensorDeviceRepository devices;
     private final VehicleEventRepository events;
     private final ParkingLotRepository lots;
     private final Clock clock;
+    private final AppProperties props;
 
     public SensorService(SensorDeviceRepository devices, VehicleEventRepository events,
-                         ParkingLotRepository lots, Clock clock) {
+                         ParkingLotRepository lots, Clock clock, AppProperties props) {
         this.devices = devices;
         this.events = events;
         this.lots = lots;
         this.clock = clock;
+        this.props = props;
+    }
+
+    @Transactional(readOnly = true)
+    public List<DeviceView> devices(String lotCode) {
+        ParkingLot lot = lots.findByCode(lotCode).orElseThrow(() -> ApiException.notFound("주차장"));
+        Instant now = clock.instant();
+        return devices.findByLotId(lot.getId()).stream()
+                .sorted(java.util.Comparator.comparing(SensorDevice::getGate))
+                .map(d -> new DeviceView(d.getDeviceId(), d.getGate().name(), d.getLastSeenAt(), d.getLastSeq(),
+                        d.getLastSeenAt() != null
+                                && java.time.Duration.between(d.getLastSeenAt(), now).toMinutes()
+                                        < props.sensor().staleMinutes()))
+                .toList();
     }
 
     /**
@@ -83,6 +105,15 @@ public class SensorService {
         return new Result(accepted, duplicates, errors);
     }
 
+    @Transactional(readOnly = true)
+    public Summary summary() {
+        java.time.LocalDate today = java.time.LocalDate.now(clock);
+        Instant start = today.atStartOfDay(clock.getZone()).toInstant();
+        return new Summary(today,
+                events.countByDirectionAndOccurredAtGreaterThanEqual(VehicleEvent.Direction.IN, start),
+                events.countByDirectionAndOccurredAtGreaterThanEqual(VehicleEvent.Direction.OUT, start));
+    }
+
     /** 이벤트 없이 센서 연결 상태만 알리는 신호. */
     @Transactional
     public void heartbeat(String deviceId) {
@@ -96,7 +127,7 @@ public class SensorService {
         ParkingLot lot = lots.findByCode(lotCode).orElseThrow(() -> ApiException.notFound("주차장"));
         return events.findByLotIdOrderByOccurredAtDesc(lot.getId(), Limit.of(Math.min(limit, 200))).stream()
                 .map(e -> new EventView(e.getDeviceId(), e.getSeq(), e.getDirection().name(),
-                        e.getOccurredAt(), e.getVoucherId() != null))
+                        e.getOccurredAt()))
                 .toList();
     }
 }

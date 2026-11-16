@@ -41,6 +41,19 @@ public class SensorController {
         return Map.of("status", "ok");
     }
 
+    @GetMapping("/admin/summary")
+    public SensorService.Summary summary(@RequestHeader(value = "X-Admin-Key", required = false) String key) {
+        guard.requireAdmin(key);
+        return service.summary();
+    }
+
+    @GetMapping("/admin/lots/{code}/sensors")
+    public List<SensorService.DeviceView> sensors(@RequestHeader(value = "X-Admin-Key", required = false) String key,
+                                                  @PathVariable String code) {
+        guard.requireAdmin(key);
+        return service.devices(code);
+    }
+
     @GetMapping("/admin/lots/{code}/events")
     public List<SensorService.EventView> recent(@RequestHeader(value = "X-Admin-Key", required = false) String key,
                                                 @PathVariable String code,

@@ -38,17 +38,16 @@ export const api = {
   },
   lot: (code) => request(`/lots/${encodeURIComponent(code)}`),
   shuttle: () => request('/shuttle'),
-  benefits: () => request('/benefits'),
-  issueVoucher: (lotCode, plateNumber) => request('/vouchers', { method: 'POST', body: { lotCode, plateNumber } }),
-  voucher: (code) => request(`/vouchers/${encodeURIComponent(code)}`),
+  places: () => request('/places'),
 
   admin: {
     summary: (k) => request('/admin/summary', { adminKey: k }),
     updateLot: (k, code, body) => request(`/admin/lots/${encodeURIComponent(code)}`, { method: 'PATCH', body, adminKey: k }),
     events: (k, code) => request(`/admin/lots/${encodeURIComponent(code)}/events?limit=20`, { adminKey: k }),
-    issue: (k, lotCode, plateNumber) => request('/admin/vouchers', { method: 'POST', body: { lotCode, plateNumber }, adminKey: k }),
-    findByPlate: (k, plate) => request(`/admin/vouchers?plate=${encodeURIComponent(plate)}`, { adminKey: k }),
+    sensors: (k, code) => request(`/admin/lots/${encodeURIComponent(code)}/sensors`, { adminKey: k }),
     demoReset: (k) => request('/admin/demo/reset', { method: 'POST', adminKey: k }),
-    redeem: (k, code) => request(`/admin/vouchers/${encodeURIComponent(code)}/redeem`, { method: 'POST', adminKey: k }),
+    addPlace: (k, body) => request('/admin/places', { method: 'POST', body, adminKey: k }),
+    updatePlace: (k, id, body) => request(`/admin/places/${id}`, { method: 'PATCH', body, adminKey: k }),
+    deletePlace: (k, id) => request(`/admin/places/${id}`, { method: 'DELETE', adminKey: k }),
   },
 }
