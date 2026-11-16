@@ -1,16 +1,15 @@
-import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api.js'
 import { hhmm, kakaoDirections, usePolling, walkMinutes, walkMinutesBetween } from '../lib.js'
 import MapView, { esc } from '../components/MapView.jsx'
+import { busSvg } from '../components/Bus.jsx'
 import Layout from '../components/Layout.jsx'
 import { LevelBadge, Remaining } from '../components/LotCard.jsx'
 
 function NextShuttle({ stopName, lot }) {
-  const [route, setRoute] = useState(null)
-  useEffect(() => {
-    api.shuttle().then((r) => setRoute(r[0])).catch(() => {})
-  }, [])
+  // 15초마다 다시 읽어 버스 위치·남은 시간이 움직이게
+  const { data: routes } = usePolling(api.shuttle, 15000)
+  const route = routes?.[0]
   if (!route || !stopName) return null
   const stop = route.stops.find((s) => s.name === stopName)
   if (!stop) return null
@@ -25,6 +24,14 @@ function NextShuttle({ stopName, lot }) {
         markers={[
           { id: 'lot', lat: lot.lat, lng: lot.lng, html: `<div class="pin"><b>P</b><span>${esc(lot.name.replace(/ ?임시주차장$/, ''))}</span></div>`, z: 3 },
           { id: 'stop', lat: stop.lat, lng: stop.lng, html: `<div class="pin bus"><b>셔틀</b><span>${esc(stop.name)}</span></div>`, z: 4 },
+          // 이 정류장으로 오고 있는 버스
+          ...route.buses
+            .filter((b) => b.toStop === stop.name)
+            .map((b) => ({ id: `b${b.busNo}`, lat: b.lat, lng: b.lng, html: `<div class="bus-marker">${busSvg(28)}<b>${b.busNo}호차</b></div>`, z: 6 })),
+        ]}
+        fitTo={[
+          [lot.lat, lot.lng],
+          [stop.lat, stop.lng],
         ]}
         line={[
           [lot.lat, lot.lng],

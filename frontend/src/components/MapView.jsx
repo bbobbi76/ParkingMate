@@ -155,9 +155,12 @@ export default function MapView({ markers, line, polygons, onMapClick, focus, he
     if (mm.kind === 'kakao') {
       const b = new mm.kakao.maps.LatLngBounds()
       pts.forEach(([a, c]) => b.extend(new mm.kakao.maps.LatLng(a, c)))
-      mm.m.setBounds(b, fitTo?.length ? 10 : 40, fitTo?.length ? 10 : 40, fitTo?.length ? 10 : 40, fitTo?.length ? 10 : 40)
+      // 넓은 범위(얼음판)는 꽉 차게, 점 두세 개(주차장·정류장)는 여백을 넉넉히
+      const pad = fitTo?.length > 4 ? 10 : 60
+      mm.m.setBounds(b, pad, pad, pad, pad)
     } else {
-      mm.m.fitBounds(pts, { padding: fitTo?.length ? [8, 8] : [36, 36] })
+      const pad = fitTo?.length > 4 ? 8 : fitTo?.length ? 60 : 36
+      mm.m.fitBounds(pts, { padding: [pad, pad], maxZoom: 17 })
     }
   }, [markers, engine, fitKey])
 

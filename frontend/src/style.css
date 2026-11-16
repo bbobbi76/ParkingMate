@@ -300,7 +300,9 @@ input:focus, select:focus { border-color: var(--navy); }
 .fest-tag { align-self: flex-start; font-size: .8rem; font-weight: 800; color: var(--ok); }
 .stop-time { flex: none; text-align: right; font-size: .95rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .stop-time b { font-size: 1.7rem; font-weight: 800; color: var(--navy); margin-right: 2px; }
-.bus-row { display: flex; align-items: center; gap: 10px; padding: 0 0 10px; font-size: .9rem; color: var(--ink-2); }
+.bus-row { position: relative; display: flex; align-items: center; gap: 10px; padding: 2px 0 12px; font-size: .95rem; color: var(--ink-2); }
+.bus-row b { color: var(--navy); }
+.bus-row .bus-icon { position: relative; left: -36px; margin-right: -32px; background: var(--paper); border-radius: 6px; padding: 1px; line-height: 0; }
 .bus-chip { position: relative; left: -30px; margin-right: -30px; background: var(--navy); color: #fff; font-weight: 800; font-size: .85rem; border-radius: 6px; padding: 3px 8px; }
 .line-route > li.loop-back { min-height: 44px; display: flex; align-items: center; }
 .line-route > li.loop-back::before { bottom: 50%; }
@@ -324,3 +326,10 @@ input:focus, select:focus { border-color: var(--navy); }
 .zone-dot { width: 22px; height: 22px; transform: translate(-50%, -50%); cursor: pointer; }
 .zone-text { transform: translate(-50%, -50%); white-space: nowrap; font-family: 'Pretendard Variable', Pretendard, sans-serif; font-size: 13px; font-weight: 800; color: var(--c); cursor: pointer; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff; }
 .bridge-text { transform: translate(-50%, -50%); white-space: nowrap; font-size: 11px; font-weight: 700; color: #4a5565; background: #e8ecf1; border-radius: 4px; padding: 0 5px; pointer-events: none; }
+.bus-icon { display: inline-block; line-height: 0; }
+.bus-marker { transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; cursor: default; }
+.bus-marker svg { filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 2px #fff); }
+.bus-marker b { font-family: 'Pretendard Variable', Pretendard, sans-serif; font-size: 11px; font-weight: 800; color: #fff; background: var(--navy); border-radius: 4px; padding: 0 4px; margin-top: 1px; }
+.map-toggle { margin: 8px 0 14px; min-height: 44px; }
+.lot-row-go { flex: none; width: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; color: var(--navy); border-left: 1px solid var(--line-2); font-size: .72rem; font-weight: 700; }
+.lot-row-go:hover, .lot-row-go:focus-visible { background: var(--navy-soft); }

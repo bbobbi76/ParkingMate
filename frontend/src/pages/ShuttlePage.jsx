@@ -3,6 +3,7 @@ import { api } from '../api.js'
 import { hhmm, usePolling } from '../lib.js'
 import Layout from '../components/Layout.jsx'
 import MapView, { esc } from '../components/MapView.jsx'
+import { BusIcon, busSvg } from '../components/Bus.jsx'
 
 const DAY = { MON: '월', TUE: '화', WED: '수', THU: '목', FRI: '금', SAT: '토', SUN: '일' }
 
@@ -21,7 +22,13 @@ function RouteMap({ r }) {
         html: `<div class="pin stop${s.festival ? ' fest' : ''}"><span>${esc(s.name)}</span></div>`,
         z: 2,
       })),
-      ...r.buses.map((b) => ({ id: `b${b.busNo}`, lat: b.lat, lng: b.lng, html: `<div class="pin bus"><b>${b.busNo}호차</b></div>`, z: 10 })),
+      ...r.buses.map((b) => ({
+        id: `b${b.busNo}`,
+        lat: b.lat,
+        lng: b.lng,
+        html: `<div class="bus-marker">${busSvg(30)}<b>${b.busNo}호차</b></div>`,
+        z: 10,
+      })),
     ],
     [r],
   )
@@ -29,11 +36,11 @@ function RouteMap({ r }) {
     const pts = r.stops.map((s) => [s.lat, s.lng])
     return pts.length ? [...pts, pts[0]] : pts
   }, [r])
-  return <MapView markers={markers} line={line} height={300} label="셔틀 노선 지도" />
+  return <MapView markers={markers} line={line} height={340} label="셔틀 노선과 버스 위치 지도" />
 }
 
 function RouteCard({ r }) {
-  const [showMap, setShowMap] = useState(false)
+  const [showMap, setShowMap] = useState(true)
   const days = r.days.split(',').map((d) => DAY[d]).join('·')
   const running = r.runningNow
 
@@ -46,6 +53,11 @@ function RouteCard({ r }) {
       <p className="shuttle-sum">
         <b>{r.intervalMinutes}분마다</b> · 무료 · {running ? `${hhmm(r.now)} 기준` : `다음 운행 ${r.serviceDate.slice(5).replace('-', '월 ')}일`}
       </p>
+
+      {showMap && <RouteMap r={r} />}
+      <button className="btn ghost map-toggle" onClick={() => setShowMap((v) => !v)}>
+        {showMap ? '지도 접기' : '지도 펼치기'}
+      </button>
 
       <ol className="line-route" aria-label="정류장 순서와 버스 위치">
         {r.stops.map((s) => (
@@ -73,8 +85,10 @@ function RouteCard({ r }) {
             </div>
             {busesAfter(r, s).map((b) => (
               <div key={b.busNo} className="bus-row">
-                <span className="bus-chip">{b.busNo}호차</span>
-                <span>다음 정류장까지 {b.minutesToNextStop}분</span>
+                <BusIcon size={30} />
+                <span>
+                  <b>{b.busNo}호차</b> {b.toStop}까지 {b.minutesToNextStop}분
+                </span>
               </div>
             ))}
           </li>
@@ -85,10 +99,7 @@ function RouteCard({ r }) {
         </li>
       </ol>
 
-      <button className="btn ghost big" onClick={() => setShowMap((v) => !v)}>
-        {showMap ? '지도 닫기' : '지도로 보기'}
-      </button>
-      {showMap && <RouteMap r={r} />}
+
 
       <p className="fine">
         {days} {hhmm(r.firstDeparture)}~{hhmm(r.lastDeparture)}, 버스 {r.busCount}대가 돌아요.

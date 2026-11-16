@@ -27,6 +27,13 @@ function LotRow({ lot, selected, onSelect }) {
           {lot.shuttleStop ? `셔틀 ${lot.shuttleStop}` : lot.note ?? '축제장 인근'}
         </span>
       </button>
+      <a className="lot-row-go" href={kakaoDirections(lot)} target="_blank" rel="noreferrer" aria-label={`${lot.name} 카카오맵 길찾기`} title="길찾기">
+        <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2.5 21 11.5 12 20.5 3 11.5Z" fill="currentColor" />
+          <path d="M8.5 14v-2.2c0-.9.7-1.6 1.6-1.6h3.4V8.4l3 2.9-3 2.9v-1.8h-2.9V14Z" fill="#fff" />
+        </svg>
+        <span>길찾기</span>
+      </a>
       <Link to={`/p/${lot.code}`} className="lot-row-num" aria-label={`${lot.name} 상세`}>
         {lot.remaining != null && lot.level !== 'CLOSED' && lot.level !== 'FULL' ? (
           <>
