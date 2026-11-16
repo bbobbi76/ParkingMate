@@ -11,7 +11,7 @@ export default function Layout({ children, back }) {
             </Link>
           ) : null}
           <Link to="/" className="brand">
-            산천어축제 주차안내
+            산천어축제 안내
           </Link>
         </div>
         <nav className="tabs" aria-label="메뉴">

@@ -1,4 +1,4 @@
-# ParkingMate — 산천어축제 주차안내
+# ParkingMate — 산천어축제 안내
 
 지역문제 해결 프로젝트입니다 (KNU RE:RISE).
 
