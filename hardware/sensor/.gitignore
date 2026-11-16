@@ -1,0 +1,11 @@
+runtime/
+field-runtime/
+web-runtime/
+*.sqlite*
+__pycache__/
+**/__pycache__/
+**/.pio/
+**/.local/
+pico_exit/config.py
+pico_exit/pending*.json
+pico_exit/team-pending*.json

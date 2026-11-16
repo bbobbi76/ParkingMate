@@ -1,0 +1,59 @@
+ParkingMate 센서 → 배포 웹 연결 요청
+
+하드웨어와 노트북 브리지는 아래 규격으로 준비했어.
+웹/서버 쪽을 이 규격에 맞춰 확인하고, 백엔드 주소와 센서 키를 알려줘.
+
+1. 담당자가 전달할 두 값
+- 백엔드 원본 주소: https://서버도메인 (끝에 /api 붙이지 않음)
+- 해당 서버 환경 변수 SENSOR_KEY와 동일한 센서 키
+  키는 별도로 전달하고 이 문서·Git·브라우저 코드에는 넣지 말아줘.
+
+2. 서버 수신 규격
+POST /api/sensor/events
+헤더: Content-Type: application/json, X-Sensor-Key: 서버의 SENSOR_KEY
+입차 예시(형식 설명용이며 실제 전송용 데이터 아님):
+{"events":[{"deviceId":"entry-stm32","seq":1794820000001,"direction":"IN","occurredAt":"2026-11-16T11:00:00+00:00"}]}
+출차 deviceId는 exit-pico, direction은 OUT.
+seq는 노트북이 생성·보관하며 같은 통과를 재전송할 때 유지해.
+
+응답은 HTTP 200과 아래 형식을 사용해 줘.
+새 반영: {"accepted":1,"duplicates":0,"errors":[]}
+이미 반영: {"accepted":0,"duplicates":1,"errors":[]}
+브리지는 한 건씩 전송해. accepted + duplicates = 1, errors = []일 때만 전송 완료로 처리해.
+오류나 응답 유실이면 같은 seq로 재전송하니 deviceId + seq 중복 반영을 막아줘.
+
+3. 차량 수를 바꾸지 않는 연결 확인
+GET /api/lots/wirari → JSON에 code="wirari", sensorEnabled=true
+POST /api/sensor/events, 본문 {"events":[]}
+→ HTTP 200, {"accepted":0,"duplicates":0,"errors":[]}
+이 요청은 이벤트를 생성하거나 차량 수를 바꾸면 안 돼.
+이 인증 검사를 통과해야 노트북이 실제 신호 전송을 시작해.
+
+4. 연결 상태 알림
+POST /api/sensor/heartbeat
+X-Sensor-Key 인증, 본문 {"deviceId":"entry-stm32"} 또는 {"deviceId":"exit-pico"}
+이 요청도 차량 수를 바꾸면 안 돼.
+노트북에 최근 보드 신호가 들어올 때만 보내.
+
+5. DB와 웹 설정
+- entry-stm32 → wirari 주차장의 입구
+- exit-pico → 같은 wirari 주차장의 출구
+- IN은 currentCount +1, OUT은 -1. DB 저장과 집계는 함께 처리.
+- 웹의 VITE_API_BASE_URL은 내가 입력할 백엔드와 동일하게 설정.
+- 웹은 서버 currentCount/remaining을 주기적으로 다시 읽어 표시.
+- 관리자 센서 기록도 주기적으로 갱신해 줘.
+- 센서 키는 VITE_ 변수나 브라우저에 넣지 말아줘.
+- 시작 차량 수·운영 가능 면수는 관리자에서 정하고, 테스트할 주차장을 같이 확인하자.
+- 서버가 0대 아래로 내려가지 않으면 0대에서 출차는 0으로 남을 수 있어.
+
+6. 내 노트북 설정
+나는 바탕화면 'ParkingMate 웹 연결'에서 위 두 값을 입력하고 연결 버튼만 누르면 돼.
+기존 현장 카운터는 종료되고 웹 전송용 카운터가 같은 주소에서 실행돼.
+과거 현장 테스트 DB는 가져오지 않고, 웹 모드로 받은 신호와 같은 서버의 미전송 기록만 보내.
+노트북 화면의 '표시 초기화'는 서버 DB나 서버 차량 수를 초기화하지 않아.
+
+확인할 최종 결과
+입구 한 번 통과 → 노트북 수신 → 서버 확인 → 웹 차량 수 +1
+출구 한 번 통과 → 노트북 수신 → 서버 확인 → 웹 차량 수 -1
+같은 이벤트 재전송 → 추가 변동 없음
+실제 배포 서버/웹 반영은 이 두 값을 받은 뒤 함께 확인하자.

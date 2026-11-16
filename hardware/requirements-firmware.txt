@@ -1,0 +1,3 @@
+# Optional: needed only for flashing/reconfiguring the boards, not laptop reception.
+platformio>=6.1,<7
+mpremote>=1.24,<2

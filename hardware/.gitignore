@@ -1,0 +1,13 @@
+.venv/
+sensor/runtime/
+sensor/field-runtime/
+sensor/web-runtime/
+**/__pycache__/
+**/.pio/
+**/.local/
+*.sqlite*
+*.log
+sensor/pico_exit/config.py
+sensor/pico_exit/*pending*.json
+.env
+.env.*

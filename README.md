@@ -25,6 +25,12 @@
 - `frontend/` React + Vite. 카카오맵(키 없으면 OpenStreetMap).
 - `sensor/` 노트북 브리지, 시뮬레이터, STM32·Pico 펌웨어 예시.
 
+## 실물 하드웨어 코드 · 박서빈
+
+STM32 입구·Pico 2 WH 출구의 실제 사용 코드, 노트북 카운터, 서버 주소·센서 키를 입력하는 웹 연결 도구는 **[hardware/](hardware/README.md)** 에 정리했습니다. 새 보드 프로그램은 해당 폴더의 브리지와 함께 사용합니다. 첫 설치는 `hardware/setup.cmd`, 현장 카운터는 `hardware/현장테스트_시작.cmd`, 배포 웹 연결은 `hardware/웹연결_시작.cmd`로 실행합니다.
+
+설치 방법·핀·통신 규격·검증 범위는 [하드웨어 README](hardware/README.md), 웹/서버 담당자가 맞출 내용은 [전달사항](hardware/웹담당자_전달사항.txt)을 참고하세요. 실제 센서 키, Wi-Fi 비밀번호, 테스트 DB·로그는 포함하지 않았습니다.
+
 ## 로컬 실행
 ```bash
 cd backend && ./gradlew bootRun --args='--app.demo-clock=2027-01-16T09:30'   # http://localhost:8787
