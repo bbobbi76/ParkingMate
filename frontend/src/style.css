@@ -314,3 +314,24 @@ input:focus, select:focus { border-color: var(--navy); }
 .rec-num b { font-size: 1.6rem; color: var(--ok); margin-right: 2px; font-variant-numeric: tabular-nums; }
 .rec-sub { margin: 4px 0 0; font-size: .95rem; color: var(--ink-2); }
 .recommend .rec-btn { margin-top: 12px; }
+
+/* ── 축제장 안내도 ── */
+.view-toggle { display: inline-flex; margin: 12px 0 10px; border: 1.5px solid var(--navy); border-radius: 8px; overflow: hidden; }
+.view-toggle button { min-height: 44px; padding: 0 18px; background: #fff; border: 0; font: inherit; font-weight: 700; font-size: .95rem; color: var(--navy); cursor: pointer; }
+.view-toggle button.on { background: var(--navy); color: #fff; }
+.guide-map { display: block; width: 100%; max-width: 520px; height: auto; margin: 0 auto; border: 1px solid var(--line); border-radius: 8px; background: #f3f5f8; }
+.gm-col { font-size: 12px; font-weight: 700; fill: var(--ink-3); }
+.gm-dir { font-size: 11px; fill: #3d6f97; font-weight: 700; }
+.gm-bridge { font-size: 11px; font-weight: 800; fill: var(--ink-2); }
+.gm-item { cursor: pointer; }
+.gm-item rect { fill: #fff; stroke: var(--c); stroke-width: 2; }
+.gm-item circle { fill: var(--c); }
+.gm-item text { font-size: 13px; font-weight: 700; fill: var(--ink); }
+.gm-item.sel rect { fill: var(--navy); stroke: var(--navy); }
+.gm-item.sel text { fill: #fff; }
+.gm-item.sel circle { fill: #fff; }
+.gm-item:focus { outline: none; }
+.gm-item:focus-visible rect { stroke: #f2b600; stroke-width: 3; }
+.place-pick { margin-top: 12px; border: 2px solid var(--navy); }
+.place-pick h2 { margin: 6px 0; }
+.place-pick .fee-line { color: var(--ink-2); font-size: .95rem; }
