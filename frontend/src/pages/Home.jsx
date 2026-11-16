@@ -1,13 +1,12 @@
 import { useCallback, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api.js'
-import { LEVEL, kakaoDirections, usePolling } from '../lib.js'
+import { LEVEL, kakaoDirections, usePolling, walkMinutes } from '../lib.js'
 import Layout from '../components/Layout.jsx'
 import LotMap from '../components/LotMap.jsx'
 
 const FILTERS = [
   { key: 'all', label: '전체' },
-  { key: 'open', label: '여유 있는 곳' },
   { key: 'shuttle', label: '셔틀 정류장' },
 ]
 
@@ -76,24 +75,24 @@ function pickBest(lots) {
   )[0]
 }
 
-function Recommend({ lot, onPick }) {
+function Recommend({ lot }) {
   return (
-    <button className="recommend" onClick={() => onPick(lot.code)}>
-      <span className="rec-label">여기에 대세요</span>
-      <span className="rec-main">
-        <strong>{lot.name.replace(/ ?임시주차장$/, '')}</strong>
+    <section className="recommend">
+      <div className="rec-main">
+        <Link to={`/p/${lot.code}`} className="rec-name">
+          {lot.name.replace(/ ?임시주차장$/, '')}
+        </Link>
         {lot.remaining != null && (
           <span className="rec-num">
             <b>{lot.remaining}</b>자리 남음
           </span>
         )}
-      </span>
-      <span className="rec-sub">
-        {lot.shuttleStop ? `${lot.shuttleStop}에서 셔틀 타요` : '축제장까지 걸어갈 수 있어요'}
-        {lot.incentive && ' · 체험 이용권 드려요'}
-      </span>
-      <span className="rec-go">길찾기 ›</span>
-    </button>
+      </div>
+      <p className="rec-sub">{lot.shuttleStop ? `셔틀 정류장: ${lot.shuttleStop}` : `축제장까지 걸어서 약 ${walkMinutes(lot)}분`}</p>
+      <a className="btn primary big rec-btn" href={kakaoDirections(lot)} target="_blank" rel="noreferrer">
+        카카오맵 길찾기
+      </a>
+    </section>
   )
 }
 
@@ -104,13 +103,15 @@ export default function Home() {
   const [selected, setSelected] = useState(() => new URLSearchParams(window.location.search).get('lot'))
   const [filter, setFilter] = useState('all')
 
+  // 같은 주차장을 다시 누르면 선택 해제. 화면은 움직이지 않음(고른 주차장은 아래 띠에 나옴)
   const select = useCallback((code) => {
-    setSelected(code)
-    document.getElementById(`lot-${code}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    setSelected((cur) => (cur === code ? null : code))
   }, [])
 
   const all = lots ?? []
-  const shown = all.filter((l) => (filter === 'open' ? l.level === 'AVAILABLE' : filter === 'shuttle' ? !!l.shuttleStop : true))
+  // 상태 칸(여유·혼잡·만차·정보없음)을 누르면 그 상태만, 셔틀 정류장 탭은 셔틀 있는 곳만
+  const [level, setLevel] = useState(null)
+  const shown = all.filter((l) => (filter === 'shuttle' ? !!l.shuttleStop : true) && (level ? l.level === level : true))
   const count = (lv) => all.filter((l) => l.level === lv).length
   const selectedLot = all.find((l) => l.code === selected)
   const benefitLots = all.filter((l) => l.incentive)
@@ -123,14 +124,34 @@ export default function Home() {
         {board && <span className="stamp">{clock(board.now)} 기준</span>}
       </div>
 
-      <dl className="tally">
-        <div className="ok"><dt>여유</dt><dd>{count('AVAILABLE')}</dd></div>
-        <div className="busy"><dt>혼잡</dt><dd>{count('BUSY')}</dd></div>
-        <div className="full"><dt>만차</dt><dd>{count('FULL')}</dd></div>
-        <div className="unknown"><dt>정보없음</dt><dd>{count('UNKNOWN')}</dd></div>
-      </dl>
+      <div className="tally" role="group" aria-label="상태별로 보기">
+        {[
+          ['AVAILABLE', '여유', 'ok'],
+          ['BUSY', '혼잡', 'busy'],
+          ['FULL', '만차', 'full'],
+          ['UNKNOWN', '정보없음', 'unknown'],
+        ].map(([lv, word, cls]) => (
+          <button
+            key={lv}
+            className={`${cls}${level === lv ? ' on' : ''}`}
+            aria-pressed={level === lv}
+            onClick={() => setLevel((cur) => (cur === lv ? null : lv))}
+          >
+            <span className="t-word">{word}</span>
+            <span className="t-num">{count(lv)}</span>
+          </button>
+        ))}
+      </div>
+      {level && (
+        <p className="filter-note">
+          {{ AVAILABLE: '여유', BUSY: '혼잡', FULL: '만차', UNKNOWN: '정보없음' }[level]} 주차장만 보고 있어요
+          <button className="link-btn" onClick={() => setLevel(null)}>
+            전체 보기
+          </button>
+        </p>
+      )}
 
-      {best && <Recommend lot={best} onPick={select} />}
+      {best && <Recommend lot={best} />}
 
       {benefitLots.length > 0 && !best?.incentive && (
         <p className="notice">

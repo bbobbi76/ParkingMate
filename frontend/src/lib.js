@@ -21,8 +21,13 @@ export function distanceMeters(a, b) {
 }
 
 /** 직선거리 × 1.3(도로 우회) ÷ 분당 65m(천천히 걷는 속도). */
+export function walkMinutesBetween(a, b) {
+  return Math.max(1, Math.round((distanceMeters(a, b) * 1.3) / 65))
+}
+
+/** 주차장 → 축제장 걸어서 */
 export function walkMinutes(lot) {
-  return Math.max(1, Math.round((distanceMeters(lot, FESTIVAL) * 1.3) / 65))
+  return walkMinutesBetween(lot, FESTIVAL)
 }
 
 /** 카카오맵 길찾기: 지금 내 위치 → 목적지 (휴대폰에 카카오맵 앱이 있으면 앱으로 열림). */

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api.js'
-import { hhmm, kakaoDirections, usePolling, walkMinutes } from '../lib.js'
+import { hhmm, kakaoDirections, usePolling, walkMinutes, walkMinutesBetween } from '../lib.js'
+import MapView, { esc } from '../components/MapView.jsx'
 import Layout from '../components/Layout.jsx'
 import { LevelBadge, Remaining } from '../components/LotCard.jsx'
 
-function NextShuttle({ stopName }) {
+function NextShuttle({ stopName, lot }) {
   const [route, setRoute] = useState(null)
   useEffect(() => {
     api.shuttle().then((r) => setRoute(r[0])).catch(() => {})
@@ -16,10 +17,26 @@ function NextShuttle({ stopName }) {
   const today = route.serviceToday
   return (
     <section className="card">
-      <h2>셔틀버스 · {stop.name} 정류장</h2>
+      <h2>셔틀 정류장: {stop.name}</h2>
+      <p className="big-line">주차장에서 걸어서 약 {walkMinutesBetween(lot, stop)}분</p>
+      <MapView
+        height={220}
+        label="주차장과 셔틀 정류장 위치"
+        markers={[
+          { id: 'lot', lat: lot.lat, lng: lot.lng, html: `<div class="pin"><b>P</b><span>${esc(lot.name.replace(/ ?임시주차장$/, ''))}</span></div>`, z: 3 },
+          { id: 'stop', lat: stop.lat, lng: stop.lng, html: `<div class="pin bus"><b>셔틀</b><span>${esc(stop.name)}</span></div>`, z: 4 },
+        ]}
+        line={[
+          [lot.lat, lot.lng],
+          [stop.lat, stop.lng],
+        ]}
+      />
+      <a className="btn ghost" href={`https://map.kakao.com/link/to/${encodeURIComponent(stop.name + ' 셔틀 정류장')},${stop.lat},${stop.lng}`} target="_blank" rel="noreferrer">
+        정류장까지 길찾기
+      </a>
       {stop.rideToFestivalMinutes > 0 && (
         <p className="big-line">
-          셔틀로 축제장까지 약 {stop.rideToFestivalMinutes}분 <span className="muted">({stop.alightAt}에서 내리세요)</span>
+          타면 축제장까지 약 {stop.rideToFestivalMinutes}분 <span className="muted">({stop.alightAt}에서 내리세요)</span>
         </p>
       )}
       {stop.next.length > 0 ? (
@@ -102,7 +119,7 @@ export default function LotPage() {
         </section>
       )}
 
-      <NextShuttle stopName={lot.shuttleStop} />
+      <NextShuttle stopName={lot.shuttleStop} lot={lot} />
     </Layout>
   )
 }
