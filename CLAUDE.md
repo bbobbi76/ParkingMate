@@ -14,7 +14,16 @@ KNU RE:RISE 7팀. 축제 임시주차장 남은 자리 표시 + 먼 주차장 �
 - 프론트: `cd frontend && npm install && npm run dev` → http://localhost:5173
 - 센서 시뮬레이터: `python sensor/simulate.py --count 5 --fast` (위라리 둔치 센서로 전송)
 - 시연 상황 입력: `python tools/demo_setup.py` (배포 서버: `--api https://parkingmate-api.onrender.com`)
-- 배포: 웹 https://parking-mate.vercel.app (Vercel) · 서버 https://parkingmate-api.onrender.com (Render, Swagger `/swagger-ui.html`) · DB Neon. main 에 push 하면 둘 다 자동 배포
+- 배포: 웹 https://parking-mate.vercel.app (Vercel) · 서버 https://parkingmate-api.onrender.com (Render, Swagger `/swagger-ui.html`) · DB Neon. main 에 합쳐지면 둘 다 자동 배포 (아래 Git 규칙: PR로만 합침)
+
+## Git 규칙 (main 합치기는 반드시 풀리퀘스트)
+- **main에 직접 push 금지.** main에 push 하면 바로 실서버(Vercel·Render)에 배포된다.
+- 작업은 브랜치에서: `git switch -c <종류>/<짧은-설명>` (예: `feat/sensor-status`, `fix/bridge-errors`, `docs/ppt-test-result`).
+- 커밋 → `git push -u origin <브랜치>` → `gh pr create --base main` 로 풀리퀘스트를 만든다.
+- PR 본문: 무엇을 바꿨는지, 어떻게 확인했는지(`./gradlew test`, `npm run build`, 화면 확인), 남은 문제.
+- 합치기 전 확인: 백엔드 테스트·프론트 빌드 통과, 비밀값 미포함. 다른 팀원 1명이 보고 승인한 뒤 GitHub에서 **Squash and merge**.
+- 합친 뒤 브랜치 삭제, 로컬은 `git switch main && git pull`.
+- 에이전트(Claude·Codex)도 같은 규칙: PR까지만 만들고, 사용자가 말하기 전에는 합치지 않는다.
 
 ## 원칙
 - 데이터는 실제 출처 기반. 추정·예시 값은 `*_source` 컬럼과 화면 문구로 반드시 구분. 없는 면수는 지어내지 말고 null.

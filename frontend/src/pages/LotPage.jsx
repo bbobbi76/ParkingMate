@@ -148,7 +148,7 @@ export default function LotPage() {
         </div>
         {lot.sensorEnabled && (
           <p className="fine">
-            {lot.sensorOnline ? '입구·출구 센서로 실시간 집계 중' : '센서 신호가 잠시 끊겼어요. 직원 확인값을 보여 드려요.'}
+            {lot.sensorOnline ? '센서로 실시간 집계 중' : '센서 신호가 잠시 끊겼어요. 직원 확인값을 보여 드려요.'}
           </p>
         )}
         {lot.note && <p className="muted">{lot.note}</p>}

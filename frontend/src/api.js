@@ -46,6 +46,7 @@ export const api = {
     summary: (k) => request('/admin/summary', { adminKey: k }),
     updateLot: (k, code, body) => request(`/admin/lots/${encodeURIComponent(code)}`, { method: 'PATCH', body, adminKey: k }),
     events: (k, code) => request(`/admin/lots/${encodeURIComponent(code)}/events?limit=20`, { adminKey: k }),
+    sensors: (k, code) => request(`/admin/lots/${encodeURIComponent(code)}/sensors`, { adminKey: k }),
     issue: (k, lotCode, plateNumber) => request('/admin/vouchers', { method: 'POST', body: { lotCode, plateNumber }, adminKey: k }),
     findByPlate: (k, plate) => request(`/admin/vouchers?plate=${encodeURIComponent(plate)}`, { adminKey: k }),
     demoReset: (k) => request('/admin/demo/reset', { method: 'POST', adminKey: k }),

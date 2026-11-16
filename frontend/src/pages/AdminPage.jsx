@@ -88,7 +88,7 @@ function LotRow({ lot, adminKey, onChanged }) {
           {lot.name}
           {lot.incentive && <span className="tag">이용권</span>}
           {lot.sensorEnabled && (
-            <span className={`tag ${lot.sensorOnline ? 'on' : 'off'}`}>{lot.sensorOnline ? '센서 연결' : '센서 끊김'}</span>
+            <span className={`tag ${lot.sensorOnline ? 'on' : 'off'}`}>{lot.sensorOnline ? '센서 신호 있음' : '센서 신호 없음'}</span>
           )}
         </h3>
         <span className={`badge ${lv.cls}`}>{lv.word}</span>
@@ -132,17 +132,33 @@ function LotsTab({ adminKey }) {
   const { data: lots, setData } = usePolling(api.lots, 5000)
   const onChanged = useCallback((v) => setData((ls) => ls.map((l) => (l.code === v.code ? v : l))), [setData])
   const sensorLot = lots?.find((l) => l.sensorEnabled)
-  const [events, setEvents] = useState([])
-  useEffect(() => {
-    if (!sensorLot) return
-    api.admin.events(adminKey, sensorLot.code).then(setEvents).catch(() => {})
-  }, [adminKey, sensorLot?.currentCount, sensorLot?.code]) // eslint-disable-line react-hooks/exhaustive-deps
+  // 대수 변화와 관계없이 5초마다 다시 읽는다(입차·출차가 같은 간격에 들어와 대수가 그대로여도 기록이 보이게).
+  const sensorCode = sensorLot?.code
+  const { data: eventData } = usePolling(
+    () => (sensorCode ? api.admin.events(adminKey, sensorCode) : Promise.resolve([])),
+    5000,
+    [adminKey, sensorCode],
+  )
+  const events = eventData ?? []
+  const { data: sensorData } = usePolling(
+    () => (sensorCode ? api.admin.sensors(adminKey, sensorCode) : Promise.resolve([])),
+    5000,
+    [adminKey, sensorCode],
+  )
 
   return (
     <>
       {sensorLot && (
         <section className="card">
           <h2>센서 기록 · {sensorLot.name}</h2>
+          <p>
+            {(sensorData ?? []).map((d) => (
+              <span key={d.deviceId} className={`tag ${d.online ? 'on' : 'off'}`}>
+                {d.gate === 'ENTRY' ? '입구' : '출구'} {d.online ? '연결' : '끊김'}
+              </span>
+            ))}
+          </p>
+          <p className="muted">장치별로 최근 15분 안에 신호(통과 또는 연결 확인)가 있으면 '연결'이에요.</p>
           <ul className="events">
             {events.slice(0, 8).map((e) => (
               <li key={`${e.deviceId}-${e.seq}`}>

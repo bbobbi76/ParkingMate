@@ -4,6 +4,9 @@
 - 전체 기획·ERD·API: `docs/기획문서.md`
 - 센서 작업(박서빈 담당): `docs/하드웨어_전달_박서빈.md`
 
+## Git 규칙
+main에 직접 push 하지 않는다. 브랜치에서 작업하고 풀리퀘스트로만 합친다(자세한 순서는 CLAUDE.md "Git 규칙"). PR은 만들기까지만 하고, 합치기는 사람이 승인한 뒤에 한다.
+
 ## 센서(sensor/) 작업 범위
 - 수정 대상: `sensor/stm32_entry/*.ino`, `sensor/pico_exit/main.py`. 핀 번호, `BROKEN` 논리값, 디바운스·타임아웃만 실측에 맞게 바꾼다.
 - **바꾸지 않는 약속**: STM32는 USB 시리얼 115200bps로 차 1대 통과마다 `IN\n` 한 줄. Pico는 `POST http://<노트북IP>:9000/event` 에 `{"deviceId":"exit-pico","direction":"OUT"}`.
