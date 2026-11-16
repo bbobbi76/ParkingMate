@@ -94,11 +94,7 @@ export default function LotPage() {
           <LevelBadge lot={lot} big />
           <Remaining lot={lot} />
         </div>
-        {lot.sensorEnabled && (
-          <p className="fine">
-            {lot.sensorOnline ? '입구·출구 센서로 세고 있어요' : '센서 연결이 잠시 끊겨서 직원이 확인한 숫자를 보여 드려요'}
-          </p>
-        )}
+        {lot.sensorEnabled && lot.sensorOnline && <p className="fine">입구·출구 센서로 세고 있어요</p>}
         {lot.note && <p className="muted">{lot.note}</p>}
       </section>
 

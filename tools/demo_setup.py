@@ -20,7 +20,9 @@ SCENE = {
     "silver-center": {"manualStatus": "AVAILABLE"},
     "old-mp": {"manualStatus": "AVAILABLE"},
     "tunnel3": {"manualStatus": "AVAILABLE"},
-    "wirari": {"currentCount": 188, "manualStatus": "AUTO"},  # 센서 집계 주차장, 시연 중 센서로 변함
+    "wirari": {"currentCount": 188, "manualStatus": "AUTO"},
+    # 발표·시연 장소. 입구·출구 센서가 여기에 연결됨: 50 → 차 들어오면 49 → 나가면 50
+    "learning-center": {"currentCount": 0, "manualStatus": "AUTO"},
 }
 
 

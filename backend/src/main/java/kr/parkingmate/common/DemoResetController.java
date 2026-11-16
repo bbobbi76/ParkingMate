@@ -31,7 +31,13 @@ public class DemoResetController {
     public Map<String, Integer> reset(@RequestHeader(value = "X-Admin-Key", required = false) String key) {
         guard.requireAdmin(key);
         int events = em.createQuery("delete from VehicleEvent").executeUpdate();
-        em.createQuery("update ParkingLot l set l.currentCount = :c, l.updatedAt = :t where l.sensorEnabled = true")
+        // 센서가 실제로 붙은 주차장(발표 장소 평생학습관)은 빈 상태 0대 → 남은 자리가 면수 그대로(50)
+        em.createQuery("update ParkingLot l set l.currentCount = 0, l.updatedAt = :t "
+                        + "where l.id in (select d.lotId from SensorDevice d)")
+                .setParameter("t", clock.instant())
+                .executeUpdate();
+        // 위라리 둔치는 시연 상황(토요일 오전) 값으로
+        em.createQuery("update ParkingLot l set l.currentCount = :c, l.updatedAt = :t where l.code = 'wirari'")
                 .setParameter("c", WIRARI_START_COUNT)
                 .setParameter("t", clock.instant())
                 .executeUpdate();

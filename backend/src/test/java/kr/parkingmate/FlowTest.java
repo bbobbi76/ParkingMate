@@ -37,11 +37,14 @@ class FlowTest {
     void seedLotsAreListedWithUnknownCapacityKeptNull() throws Exception {
         mvc.perform(get("/api/lots"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(12)))
-                .andExpect(jsonPath("$[0].code", is("wirari")))
-                .andExpect(jsonPath("$[0].remaining", is(500)))
-                .andExpect(jsonPath("$[1].capacity", nullValue()))
-                .andExpect(jsonPath("$[1].level", is("UNKNOWN")));
+                .andExpect(jsonPath("$", hasSize(13)))
+                // 발표·시연 장소(평생학습관) 50면이 맨 위, 그다음 위라리 둔치
+                .andExpect(jsonPath("$[0].code", is("learning-center")))
+                .andExpect(jsonPath("$[0].remaining", is(50)))
+                .andExpect(jsonPath("$[1].code", is("wirari")))
+                .andExpect(jsonPath("$[1].remaining", is(500)))
+                .andExpect(jsonPath("$[2].capacity", nullValue()))
+                .andExpect(jsonPath("$[2].level", is("UNKNOWN")));
     }
 
     @Test
@@ -53,10 +56,28 @@ class FlowTest {
                   {"deviceId":"exit-pico","seq":1,"direction":"OUT"}]}""";
         sensor(batch);
         sensor(batch); // 재전송은 중복으로 무시
-        mvc.perform(get("/api/lots/wirari"))
+        mvc.perform(get("/api/lots/learning-center"))
                 .andExpect(jsonPath("$.currentCount", is(1)))
-                .andExpect(jsonPath("$.remaining", is(499)))
+                .andExpect(jsonPath("$.remaining", is(49)))
                 .andExpect(jsonPath("$.sensorOnline", is(true)));
+        // 하드웨어 연결 확인이 보는 위라리 둔치는 센서 사용 표시만 유지되고 숫자는 그대로
+        mvc.perform(get("/api/lots/wirari"))
+                .andExpect(jsonPath("$.sensorEnabled", is(true)))
+                .andExpect(jsonPath("$.currentCount", is(0)));
+    }
+
+    @Test
+    void demoFlowFiftyThenFortyNineThenFifty() throws Exception {
+        sensor("{\"events\":[{\"deviceId\":\"entry-stm32\",\"seq\":101,\"direction\":\"IN\"}]}");
+        mvc.perform(get("/api/lots/learning-center")).andExpect(jsonPath("$.remaining", is(49)));
+        sensor("{\"events\":[{\"deviceId\":\"exit-pico\",\"seq\":102,\"direction\":\"OUT\"}]}");
+        mvc.perform(get("/api/lots/learning-center")).andExpect(jsonPath("$.remaining", is(50)));
+        // 빈 묶음(하드웨어 연결 확인)은 아무것도 바꾸지 않음
+        mvc.perform(post("/api/sensor/events").header("X-Sensor-Key", "test-sensor")
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"events\":[]}"))
+                .andExpect(jsonPath("$.accepted", is(0)))
+                .andExpect(jsonPath("$.duplicates", is(0)));
+        mvc.perform(get("/api/lots/learning-center")).andExpect(jsonPath("$.remaining", is(50)));
     }
 
     @Test
@@ -69,7 +90,7 @@ class FlowTest {
     @Test
     void adminSeesPerDeviceStatusAndTodayCounts() throws Exception {
         sensor("{\"events\":[{\"deviceId\":\"entry-stm32\",\"seq\":10,\"direction\":\"IN\"}]}");
-        mvc.perform(get("/api/admin/lots/wirari/sensors").header("X-Admin-Key", "test-admin"))
+        mvc.perform(get("/api/admin/lots/learning-center/sensors").header("X-Admin-Key", "test-admin"))
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].gate", is("ENTRY")))
                 .andExpect(jsonPath("$[0].online", is(true)))
@@ -110,9 +131,10 @@ class FlowTest {
         mvc.perform(post("/api/admin/demo/reset").header("X-Admin-Key", "test-admin"))
                 .andExpect(jsonPath("$.deletedEvents", is(1)));
         mvc.perform(get("/api/lots/wirari")).andExpect(jsonPath("$.currentCount", is(188)));
+        mvc.perform(get("/api/lots/learning-center")).andExpect(jsonPath("$.remaining", is(50)));
         // 초기화 뒤 같은 seq 를 다시 보내도 새로 센다(기록이 지워졌으므로)
         sensor("{\"events\":[{\"deviceId\":\"entry-stm32\",\"seq\":1,\"direction\":\"IN\"}]}");
-        mvc.perform(get("/api/lots/wirari")).andExpect(jsonPath("$.currentCount", is(189)));
+        mvc.perform(get("/api/lots/learning-center")).andExpect(jsonPath("$.remaining", is(49)));
     }
 
     @Test
