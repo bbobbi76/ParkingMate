@@ -9,12 +9,14 @@ import { loadKakao } from './LotMap.jsx'
  * line: [[lat, lng], ...] 노선 같은 선(선택)
  * onMapClick(lat, lng): 빈 곳을 누르면 호출(장소 추가용, 선택)
  * focus: { lat, lng } 이 위치로 이동(선택)
+ * polygons: [{ id, path: [[lat, lng], ...], fill, stroke, opacity, weight, onClick? }] 구역(선택)
  */
-export default function MapView({ markers, line, onMapClick, focus, height = 320, label = '지도', fitKey }) {
+export default function MapView({ markers, line, polygons, onMapClick, focus, height = 320, label = '지도', fitKey }) {
   const box = useRef(null)
   const map = useRef(null)
   const layer = useRef([])
   const lineRef = useRef(null)
+  const polyRef = useRef([])
   const clickRef = useRef(onMapClick)
   clickRef.current = onMapClick
   const [engine, setEngine] = useState(null)
@@ -105,6 +107,42 @@ export default function MapView({ markers, line, onMapClick, focus, height = 320
       lineRef.current = L.polyline(line, { color: '#14365c', weight: 4, opacity: 0.55, dashArray: '6 6' }).addTo(mm.m)
     }
   }, [line, engine])
+
+  // 구역(다각형): 마커보다 아래에 그린다
+  useEffect(() => {
+    const mm = map.current
+    if (!mm) return
+    polyRef.current.forEach((x) => (mm.kind === 'kakao' ? x.setMap(null) : x.remove()))
+    polyRef.current = []
+    for (const pg of polygons ?? []) {
+      if (mm.kind === 'kakao') {
+        const o = new mm.kakao.maps.Polygon({
+          map: mm.m,
+          path: pg.path.map(([a, b]) => new mm.kakao.maps.LatLng(a, b)),
+          strokeWeight: pg.weight ?? 2,
+          strokeColor: pg.stroke ?? pg.fill,
+          strokeOpacity: 0.9,
+          fillColor: pg.fill,
+          fillOpacity: pg.opacity ?? 0.35,
+          zIndex: 1,
+        })
+        if (pg.onClick) mm.kakao.maps.event.addListener(o, 'click', pg.onClick)
+        polyRef.current.push(o)
+      } else {
+        const o = L.polygon(pg.path, {
+          color: pg.stroke ?? pg.fill,
+          weight: pg.weight ?? 2,
+          fillColor: pg.fill,
+          fillOpacity: pg.opacity ?? 0.35,
+        }).addTo(mm.m)
+        if (pg.onClick) o.on('click', (e) => {
+          L.DomEvent.stopPropagation(e)
+          pg.onClick()
+        })
+        polyRef.current.push(o)
+      }
+    }
+  }, [polygons, engine])
 
   // 처음(또는 fitKey 가 바뀔 때) 모든 마커가 보이게
   const fitted = useRef(null)
