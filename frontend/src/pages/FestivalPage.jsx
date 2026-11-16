@@ -15,7 +15,12 @@ const FILTERS = [
 
 /** 지도 구역 색: 분류 색과 같게 (style.css 의 .c-fish 등) */
 const ZONE_COLOR = { FISHING: '#0b5fa5', SNOW: '#5b4bb7', CULTURE: '#8a4b00', FOOD: '#b0302a', INFO: '#157f3b', ETC: '#4a5565' }
-const ICE = '#7fb7dd'
+const ICE = '#cfe6f6'
+const ICE_EDGE = '#7fb7dd'
+/** 배머리교(OSM 다리 위치): 맨손잡기장·예약낚시터가 다리 북쪽 */
+const BRIDGE = { lat: 38.11120, lng: 127.71010 }
+/** 처음 보이는 범위: 얼음판 전체 */
+const FIT = [...ZONES.ice, ...ZONES.iceNorth, ...ZONES.zones.find((z) => z.name === '루어낚시터').polygon]
 const OFFICIAL_MAP = 'https://www.narafestival.com/01_icenara/?wr_id=6'
 
 const zoneByName = Object.fromEntries(ZONES.zones.map((z) => [z.name, z]))
@@ -31,7 +36,7 @@ function labelHtml(p, selected, onIce, showLabel) {
   const c = PLACE_CATEGORY[p.category] ?? PLACE_CATEGORY.ETC
   if (selected) return `<div class="pin place sel"><span>${esc(p.name)}</span></div>`
   if (onIce && !showLabel) return `<div class="zone-dot" title="${esc(p.name)}"></div>`
-  if (onIce) return `<div class="zone-label ${c.cls}">${esc(p.name.replace(' 체험존', '').replace('·파크골프', ''))}</div>`
+  if (onIce) return `<div class="zone-text ${c.cls}">${esc(p.name.replace(' 체험존', '').replace('·파크골프', ''))}</div>`
   return `<div class="dot-pin ${c.cls}" title="${esc(p.name)}"></div>`
 }
 
@@ -62,8 +67,8 @@ export default function FestivalPage() {
   // 얼음판(화천천) 바탕 + 구역 다각형
   const polygons = useMemo(() => {
     const base = [
-      { id: 'ice', path: ZONES.ice, fill: ICE, stroke: ICE, opacity: 0.25, weight: 1 },
-      { id: 'ice-n', path: ZONES.iceNorth, fill: ICE, stroke: ICE, opacity: 0.25, weight: 1 },
+      { id: 'ice', path: ZONES.ice, fill: ICE, stroke: ICE_EDGE, opacity: 0.85, weight: 2 },
+      { id: 'ice-n', path: ZONES.iceNorth, fill: ICE, stroke: ICE_EDGE, opacity: 0.85, weight: 2 },
     ]
     const zones = (places ?? [])
       .filter((p) => zoneByName[p.name])
@@ -75,8 +80,9 @@ export default function FestivalPage() {
           id: `z${p.id}`,
           path: z.polygon,
           fill: sel ? '#14365c' : ZONE_COLOR[p.category] ?? ZONE_COLOR.ETC,
-          opacity: sel ? 0.55 : on ? 0.35 : 0.08,
-          weight: sel ? 3 : 1.5,
+          stroke: '#ffffff',
+          opacity: sel ? 0.75 : on ? 0.5 : 0.1,
+          weight: 2,
           onClick: () => pick(p.id),
         }
       })
@@ -97,7 +103,7 @@ export default function FestivalPage() {
           z: p.id === selected ? 10 : onIce ? 3 : 2,
           onClick: () => pick(p.id),
         }
-      }),
+      }).concat([{ id: 'bridge', lat: BRIDGE.lat, lng: BRIDGE.lng, html: '<div class="bridge-text">배머리교</div>', z: 1 }]),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [shown, selected, filter],
   )
@@ -118,7 +124,7 @@ export default function FestivalPage() {
       </div>
 
       <div className="fest-map">
-        <MapView markers={markers} polygons={polygons} focus={sel} height={460} label="축제장 안내 지도" fitKey="festival" />
+        <MapView markers={markers} polygons={polygons} focus={sel} height={520} label="축제장 안내 지도" fitKey="festival" fitTo={FIT} />
       </div>
       <Legend />
 

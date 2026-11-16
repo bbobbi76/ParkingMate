@@ -322,3 +322,5 @@ input:focus, select:focus { border-color: var(--navy); }
 .place-pick h2 { margin: 6px 0; }
 .place-pick .fee-line { color: var(--ink-2); font-size: .95rem; }
 .zone-dot { width: 22px; height: 22px; transform: translate(-50%, -50%); cursor: pointer; }
+.zone-text { transform: translate(-50%, -50%); white-space: nowrap; font-family: 'Pretendard Variable', Pretendard, sans-serif; font-size: 13px; font-weight: 800; color: var(--c); cursor: pointer; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff; }
+.bridge-text { transform: translate(-50%, -50%); white-space: nowrap; font-size: 11px; font-weight: 700; color: #4a5565; background: #e8ecf1; border-radius: 4px; padding: 0 5px; pointer-events: none; }

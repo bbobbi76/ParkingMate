@@ -11,7 +11,7 @@ import { loadKakao } from './LotMap.jsx'
  * focus: { lat, lng } 이 위치로 이동(선택)
  * polygons: [{ id, path: [[lat, lng], ...], fill, stroke, opacity, weight, onClick? }] 구역(선택)
  */
-export default function MapView({ markers, line, polygons, onMapClick, focus, height = 320, label = '지도', fitKey }) {
+export default function MapView({ markers, line, polygons, onMapClick, focus, height = 320, label = '지도', fitKey, fitTo }) {
   const box = useRef(null)
   const map = useRef(null)
   const layer = useRef([])
@@ -34,7 +34,7 @@ export default function MapView({ markers, line, polygons, onMapClick, focus, he
       })
       .catch(() => {
         if (cancelled) return
-        const m = L.map(box.current, { zoomControl: true }).setView([FESTIVAL.lat, FESTIVAL.lng], 16)
+        const m = L.map(box.current, { zoomControl: true, zoomSnap: 0.5 }).setView([FESTIVAL.lat, FESTIVAL.lng], 16)
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(m)
         m.on('click', (e) => clickRef.current?.(e.latlng.lat, e.latlng.lng))
         map.current = { kind: 'leaflet', m }
@@ -150,13 +150,14 @@ export default function MapView({ markers, line, polygons, onMapClick, focus, he
     const mm = map.current
     if (!mm || !markers?.length || fitted.current === (fitKey ?? 'once')) return
     fitted.current = fitKey ?? 'once'
-    const pts = markers.map((m) => [m.lat, m.lng])
+    // fitTo 가 있으면 그 범위로(예: 축제장 얼음판만 크게), 없으면 모든 마커
+    const pts = fitTo?.length ? fitTo : markers.map((m) => [m.lat, m.lng])
     if (mm.kind === 'kakao') {
       const b = new mm.kakao.maps.LatLngBounds()
       pts.forEach(([a, c]) => b.extend(new mm.kakao.maps.LatLng(a, c)))
-      mm.m.setBounds(b, 40, 40, 40, 40)
+      mm.m.setBounds(b, fitTo?.length ? 10 : 40, fitTo?.length ? 10 : 40, fitTo?.length ? 10 : 40, fitTo?.length ? 10 : 40)
     } else {
-      mm.m.fitBounds(pts, { padding: [36, 36] })
+      mm.m.fitBounds(pts, { padding: fitTo?.length ? [8, 8] : [36, 36] })
     }
   }, [markers, engine, fitKey])
 
