@@ -12,6 +12,8 @@ public record AppProperties(
         List<String> allowedOrigins,
         String zone,
         String demoClock,
+        /** true 면 셔틀을 매일·항상 운행 중으로 계산(시연용). 실제 운행표는 토·일 09~18시. */
+        boolean shuttleAlways,
         Sensor sensor) {
 
     public record Sensor(int staleMinutes) {}

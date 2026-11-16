@@ -47,19 +47,23 @@ public class ShuttleService {
     public record RouteView(String name, String days, LocalTime firstDeparture, LocalTime lastDeparture,
                             int intervalMinutes, Integer busCount, String source,
                             boolean runningNow, LocalDate serviceDate, boolean serviceToday,
-                            LocalTime now, int loopMinutes, List<String> festivalStops,
+                            LocalTime now, int loopMinutes, List<String> festivalStops, boolean always,
                             List<StopView> stops, List<BusView> buses) {}
 
     private final ShuttleRouteRepository routes;
     private final ShuttleStopRepository stops;
     private final Clock clock;
     private final FestivalPlaceRepository places;
+    /** true 면 실제 운행표(토·일 09~18시)와 관계없이 매일 0시부터 같은 간격으로 계속 도는 것으로 계산(시연용). */
+    private final boolean always;
 
-    ShuttleService(ShuttleRouteRepository routes, ShuttleStopRepository stops, Clock clock, FestivalPlaceRepository places) {
+    ShuttleService(ShuttleRouteRepository routes, ShuttleStopRepository stops, Clock clock, FestivalPlaceRepository places,
+                   kr.parkingmate.common.AppProperties props) {
         this.routes = routes;
         this.stops = stops;
         this.clock = clock;
         this.places = places;
+        this.always = props.shuttleAlways();
     }
 
     @Transactional(readOnly = true)
@@ -69,14 +73,20 @@ public class ShuttleService {
     }
 
     RouteView view(ShuttleRoute r, LocalDateTime now) {
-        Set<java.time.DayOfWeek> days = r.operatingDays();
+        List<ShuttleStop> list = stops.findByRouteIdOrderBySeqAsc(r.getId());
+        int loop = loopMinutes(list);
+        int interval = r.getIntervalMinutes();
+        Set<java.time.DayOfWeek> days = always ? java.util.EnumSet.allOf(java.time.DayOfWeek.class) : r.operatingDays();
+        LocalTime firstDep = always ? LocalTime.MIDNIGHT : r.getFirstDeparture();
+        // 항상 운행: 마지막 바퀴가 자정 전에 끝나도록 마지막 출발을 잡는다.
+        LocalTime lastDep = always ? lastDepartureBeforeMidnight(loop, interval) : r.getLastDeparture();
+        int tail = always ? loop : 60;
         LocalDate date = now.toLocalDate();
         LocalTime from = now.toLocalTime();
         boolean today = days.contains(date.getDayOfWeek());
-        boolean running = today && !from.isBefore(r.getFirstDeparture())
-                && !from.isAfter(r.getLastDeparture().plusMinutes(60));
+        boolean running = today && !from.isBefore(firstDep) && !from.isAfter(lastDep.plusMinutes(tail));
         // 오늘 운행이 끝났거나 운행일이 아니면 다음 운행일 첫차부터 보여 준다.
-        if (!today || from.isAfter(r.getLastDeparture().plusMinutes(60))) {
+        if (!today || from.isAfter(lastDep.plusMinutes(tail))) {
             date = date.plusDays(1);
             while (!days.contains(date.getDayOfWeek())) {
                 date = date.plusDays(1);
@@ -85,21 +95,19 @@ public class ShuttleService {
         }
         boolean serviceToday = date.equals(now.toLocalDate());
 
-        List<ShuttleStop> list = stops.findByRouteIdOrderBySeqAsc(r.getId());
-        int loop = loopMinutes(list);
         boolean[] fest = festivalStops(list, places.findAll());
 
         List<StopView> out = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
             ShuttleStop s = list.get(i);
-            LocalTime first = r.getFirstDeparture().plusMinutes(s.getOffsetMinutes());
-            LocalTime last = r.getLastDeparture().plusMinutes(s.getOffsetMinutes());
+            LocalTime first = firstDep.plusMinutes(s.getOffsetMinutes());
+            LocalTime last = lastDep.plusMinutes(s.getOffsetMinutes());
             List<LocalTime> next = new ArrayList<>();
-            for (LocalTime t = first; !t.isAfter(last) && next.size() < 3; t = t.plusMinutes(r.getIntervalMinutes())) {
+            for (LocalTime t = first; !t.isAfter(last) && next.size() < 3; t = t.plusMinutes(interval)) {
                 if (!t.isBefore(from)) {
                     next.add(t);
                 }
-                if (t.plusMinutes(r.getIntervalMinutes()).isBefore(t)) {
+                if (t.plusMinutes(interval).isBefore(t)) {
                     break; // 자정 넘김 방지
                 }
             }
@@ -120,11 +128,18 @@ public class ShuttleService {
             out.add(new StopView(s.getSeq(), s.getName(), s.getLat(), s.getLng(), s.getCoordSource(),
                     s.getOffsetSource(), next, first, last, fest[i], ride, alight, until));
         }
-        List<BusView> buses = serviceToday && running ? buses(r, list, loop, now.toLocalTime()) : List.of();
+        List<BusView> buses = serviceToday && running
+                ? buses(r.getBusCount(), firstDep, lastDep, interval, list, loop, now.toLocalTime()) : List.of();
         return new RouteView(r.getName(), r.getDays(), r.getFirstDeparture(), r.getLastDeparture(),
                 r.getIntervalMinutes(), r.getBusCount(), r.getSource(), running, date, serviceToday,
                 now.toLocalTime().withNano(0), loop,
-                out.stream().filter(StopView::festival).map(StopView::name).toList(), out, buses);
+                out.stream().filter(StopView::festival).map(StopView::name).toList(), always, out, buses);
+    }
+
+    static LocalTime lastDepartureBeforeMidnight(int loop, int interval) {
+        int latest = 24 * 60 - 1 - loop;
+        int last = Math.max(0, latest - Math.floorMod(latest, interval));
+        return LocalTime.of(last / 60, last % 60);
     }
 
     /** 마지막 정류장 → 첫 정류장 복귀 구간은 정류장 사이 평균 간격으로 추정. */
@@ -171,21 +186,21 @@ public class ShuttleService {
     }
 
     /** 지금 노선 위에 있어야 할 버스들. 첫 정류장 출발 시각부터 흐른 시간으로 위치를 계산한다. */
-    static List<BusView> buses(ShuttleRoute r, List<ShuttleStop> list, int loop, LocalTime now) {
+    static List<BusView> buses(Integer buses, LocalTime firstDep, LocalTime lastDep, int interval,
+                               List<ShuttleStop> list, int loop, LocalTime now) {
         List<BusView> out = new ArrayList<>();
         if (list.isEmpty()) {
             return out;
         }
-        int busCount = r.getBusCount() == null || r.getBusCount() < 1 ? 1 : r.getBusCount();
+        int busCount = buses == null || buses < 1 ? 1 : buses;
         double nowMin = now.toSecondOfDay() / 60.0;
         int k = 0;
-        for (LocalTime d = r.getFirstDeparture(); !d.isAfter(r.getLastDeparture());
-             d = d.plusMinutes(r.getIntervalMinutes()), k++) {
+        for (LocalTime d = firstDep; !d.isAfter(lastDep); d = d.plusMinutes(interval), k++) {
             double elapsed = nowMin - d.toSecondOfDay() / 60.0;
             if (elapsed >= 0 && elapsed < loop) {
                 out.add(position(k % busCount + 1, d, list, loop, elapsed));
             }
-            if (d.plusMinutes(r.getIntervalMinutes()).isBefore(d)) {
+            if (d.plusMinutes(interval).isBefore(d)) {
                 break;
             }
         }

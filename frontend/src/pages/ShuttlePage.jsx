@@ -45,6 +45,11 @@ function RouteCard({ r }) {
         <p className="muted">운행 시간이 아니에요 · 다음 운행 {r.serviceDate.slice(5).replace('-', '월 ')}일</p>
       )}
 
+      {r.always && (
+        <p className="fine">
+          시연용 계산: 실제 운행(토·일 {hhmm(r.firstDeparture)}~{hhmm(r.lastDeparture)})과 관계없이 매일 {r.intervalMinutes}분 간격으로 계속 도는 것으로 보여 드려요.
+        </p>
+      )}
       <MapView markers={markers} line={line} height={320} label="셔틀 노선과 버스 위치" />
       <p className="fine">
         버스 위치는 시간표로 계산한 <b>예상 위치</b>예요(실시간 GPS 아님). 축제장 바로 옆 정류장: {r.festivalStops.join(', ')}.

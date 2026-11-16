@@ -5,3 +5,5 @@ app:
   admin-key: test-admin
   sensor-key: test-sensor
   demo-clock: 2027-01-16T09:59
+  admin-open: false
+  shuttle-always: false
