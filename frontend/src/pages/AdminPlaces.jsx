@@ -91,8 +91,8 @@ export default function AdminPlaces({ adminKey }) {
         <h2>{editId == null ? '새 장소 추가' : '장소 고치기'}</h2>
         <p className="muted">
           {editId == null
-            ? '지도에서 위치를 누른 뒤 이름과 종류를 넣으세요. 기존 핀을 누르면 고칠 수 있어요.'
-            : '위치를 옮기려면 지도에서 새 위치를 누르세요.'}
+            ? '지도에서 위치를 누르고 이름과 종류를 적어 주세요. 이미 있는 핀을 누르면 고칠 수 있어요.'
+            : '위치를 옮기려면 지도에서 새 자리를 눌러 주세요.'}
         </p>
         <MapView
           markers={markers}

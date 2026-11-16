@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { api } from '../api.js'
 import { LEVEL, usePolling } from '../lib.js'
 import AdminPlaces from './AdminPlaces.jsx'
+import LotMap from '../components/LotMap.jsx'
 
 const KEY = 'pm.adminKey'
 const STATUS = [
@@ -82,7 +83,7 @@ function LotRow({ lot, adminKey, onChanged }) {
   }
 
   return (
-    <article className="admin-lot">
+    <article className="admin-lot" id={`admin-lot-${lot.code}`}>
       <div className="lot-head">
         <h3>
           {lot.name}
@@ -130,6 +131,7 @@ function LotRow({ lot, adminKey, onChanged }) {
 function LotsTab({ adminKey }) {
   const { data: lots, setData } = usePolling(api.lots, 5000)
   const onChanged = useCallback((v) => setData((ls) => ls.map((l) => (l.code === v.code ? v : l))), [setData])
+  const [picked, setPicked] = useState(null)
   const sensorLot = lots?.find((l) => l.sensorEnabled)
   // 대수 변화와 관계없이 5초마다 다시 읽는다(입차·출차가 같은 간격에 들어와 대수가 그대로여도 기록이 보이게).
   const sensorCode = sensorLot?.code
@@ -149,6 +151,20 @@ function LotsTab({ adminKey }) {
 
   return (
     <>
+      <section className="card">
+        <h2>주차장 지도</h2>
+        <p className="muted">지금 차량 수예요. 5초마다 바뀌고, 핀을 누르면 그 주차장 조정 칸으로 가요.</p>
+        <LotMap
+          lots={lots}
+          selected={picked}
+          mode="count"
+          height={320}
+          onSelect={(code) => {
+            setPicked(code)
+            document.getElementById(`admin-lot-${code}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }}
+        />
+      </section>
       {sensorLot && (
         <section className="card">
           <h2>센서 기록 · {sensorLot.name}</h2>
@@ -165,7 +181,7 @@ function LotsTab({ adminKey }) {
               </span>
             ))}
           </p>
-          <p className="muted">장치별로 최근 15분 안에 신호(통과 또는 연결 확인)가 있으면 '연결'이에요.</p>
+          <p className="muted">15분 안에 신호가 들어온 장치는 '연결'로 보여요.</p>
           <ul className="events">
             {events.slice(0, 8).map((e) => (
               <li key={`${e.deviceId}-${e.seq}`}>
@@ -182,7 +198,7 @@ function LotsTab({ adminKey }) {
 
       <section className="card">
         <h2>시연 초기화</h2>
-        <p className="muted">리허설에서 쌓인 센서 기록을 지우고 위라리 둔치 차량 수를 시연 시작값으로 돌립니다.</p>
+        <p className="muted">리허설 때 쌓인 센서 기록을 지우고, 위라리 둔치 차량 수를 처음 값으로 돌려요.</p>
         {msg && <p className="alert info">{msg}</p>}
         <button
           className="btn big"

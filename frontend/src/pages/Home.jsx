@@ -65,6 +65,38 @@ function SelectedBar({ lot, onClose }) {
   )
 }
 
+/** 지금 대기 좋은 곳 하나: 여유 + 일반 차량용, 이용권 주는 곳·남은 자리 많은 곳 먼저. */
+function pickBest(lots) {
+  const ok = lots.filter((l) => l.level === 'AVAILABLE' && l.category !== 'ACCESSIBLE' && l.category !== 'CAMPING')
+  return ok.sort(
+    (a, b) =>
+      (b.incentive ? 1 : 0) - (a.incentive ? 1 : 0) ||
+      (b.remaining ?? -1) - (a.remaining ?? -1) ||
+      (b.shuttleStop ? 1 : 0) - (a.shuttleStop ? 1 : 0),
+  )[0]
+}
+
+function Recommend({ lot, onPick }) {
+  return (
+    <button className="recommend" onClick={() => onPick(lot.code)}>
+      <span className="rec-label">여기에 대세요</span>
+      <span className="rec-main">
+        <strong>{lot.name.replace(/ ?임시주차장$/, '')}</strong>
+        {lot.remaining != null && (
+          <span className="rec-num">
+            <b>{lot.remaining}</b>자리 남음
+          </span>
+        )}
+      </span>
+      <span className="rec-sub">
+        {lot.shuttleStop ? `${lot.shuttleStop}에서 셔틀 타요` : '축제장까지 걸어갈 수 있어요'}
+        {lot.incentive && ' · 체험 이용권 드려요'}
+      </span>
+      <span className="rec-go">길찾기 ›</span>
+    </button>
+  )
+}
+
 export default function Home() {
   const { data: board, error } = usePolling(api.board, 10000)
   const lots = board?.lots
@@ -82,6 +114,7 @@ export default function Home() {
   const count = (lv) => all.filter((l) => l.level === lv).length
   const selectedLot = all.find((l) => l.code === selected)
   const benefitLots = all.filter((l) => l.incentive)
+  const best = pickBest(all)
 
   return (
     <Layout>
@@ -97,11 +130,13 @@ export default function Home() {
         <div className="unknown"><dt>정보없음</dt><dd>{count('UNKNOWN')}</dd></div>
       </dl>
 
-      {benefitLots.length > 0 && (
+      {best && <Recommend lot={best} onPick={select} />}
+
+      {benefitLots.length > 0 && !best?.incentive && (
         <p className="notice">
-          <b>먼 주차장 혜택</b>
+          <b>이용권 드려요</b>
           <span>
-            {benefitLots.map((l) => l.name.replace(/ ?임시주차장$/, '')).join(' · ')}에 대고 셔틀을 타면 체험 이용권 (화천군 검토 중)
+            {benefitLots.map((l) => l.name.replace(/ ?임시주차장$/, '')).join(' · ')}에 주차하고 셔틀을 타시면 체험 이용권을 드려요
           </span>
         </p>
       )}
@@ -117,7 +152,7 @@ export default function Home() {
       </div>
 
       {error && !lots && <p className="alert">{error.message}</p>}
-      {!lots && !error && <p className="muted">불러오는 중</p>}
+      {!lots && !error && <p className="muted">불러오는 중…</p>}
 
       <div className="list-head">
         <span>주차장</span>
@@ -128,7 +163,7 @@ export default function Home() {
           <LotRow key={lot.code} lot={lot} selected={lot.code === selected} onSelect={select} />
         ))}
       </ul>
-      {!selectedLot && lots && <p className="fine">지도나 목록에서 주차장을 고르면 길찾기 버튼이 나와요.</p>}
+      {!selectedLot && lots && <p className="fine">주차장 이름을 누르면 길찾기 버튼이 나와요.</p>}
       {selectedLot && <div className="pick-space" aria-hidden />}
       {selectedLot && <SelectedBar lot={selectedLot} onClose={() => setSelected(null)} />}
     </Layout>

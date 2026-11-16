@@ -8,9 +8,15 @@ export function shortName(name) {
   return name.replace(/ ?(임시)?주차장$/, '').replace(/ 캠핑카·카라반$/, '')
 }
 
-function markerHtml(lot, selected) {
+function markerHtml(lot, selected, mode) {
   const lv = LEVEL[lot.level] ?? LEVEL.UNKNOWN
   const cls = `pin ${lv.cls}${selected ? ' sel' : ''}`
+  // 관리 화면: 모든 주차장에 지금 차량 수를 크게 (오르내림을 바로 보도록)
+  if (mode === 'count') {
+    // 시내에 몰려 있어 숫자만 작게, 고른 곳만 이름까지
+    if (!selected) return `<div class="${cls} cnt" title="${shortName(lot.name)} ${lot.currentCount}대"><b>${lot.currentCount}</b></div>`
+    return `<div class="${cls}"><b>${lot.currentCount}대</b><span>${shortName(lot.name)}</span></div>`
+  }
   // 남은 자리 숫자를 아는 곳과 선택한 곳만 크게. 나머지는 상태색 테두리의 작은 이름표 (시내에 몰려 있어 겹침 방지)
   if (lot.remaining == null && !selected) {
     return `<div class="${cls} slim" title="${lot.name} ${lv.word}"><span>${shortName(lot.name)}</span></div>`
@@ -35,7 +41,7 @@ export function loadKakao() {
 }
 
 /** 카카오맵 키가 있으면 카카오맵, 없거나 실패하면 OpenStreetMap. */
-export default function LotMap({ lots, selected, onSelect, height = 340 }) {
+export default function LotMap({ lots, selected, onSelect, height = 340, mode }) {
   const box = useRef(null)
   const map = useRef(null)
   const layer = useRef([])
@@ -104,7 +110,7 @@ export default function LotMap({ lots, selected, onSelect, height = 340 }) {
 
     add(FESTIVAL.lat, FESTIVAL.lng, festivalHtml, null, 1)
     lots.forEach((lot) =>
-      add(lot.lat, lot.lng, markerHtml(lot, lot.code === selected), () => onSelect?.(lot.code), lot.code === selected ? 10 : 2),
+      add(lot.lat, lot.lng, markerHtml(lot, lot.code === selected, mode), () => onSelect?.(lot.code), lot.code === selected ? 10 : 2),
     )
   }, [lots, selected, engine, onSelect])
 

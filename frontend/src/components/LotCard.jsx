@@ -16,7 +16,7 @@ export function LevelBadge({ lot, big = false }) {
 
 export function Remaining({ lot }) {
   if (lot.level === 'CLOSED') return <p className="remain muted">지금은 운영하지 않아요</p>
-  if (lot.remaining == null) return <p className="remain muted">남은 자리 확인 중</p>
+  if (lot.remaining == null) return <p className="remain muted">남은 자리 정보 없음</p>
   return (
     <p className="remain">
       남은 자리 <strong>{lot.remaining.toLocaleString()}</strong>

@@ -68,7 +68,7 @@ export default function FestivalPage() {
   return (
     <Layout>
       <h1>축제장 안내</h1>
-      <p className="muted">낚시터, 체험장, 먹거리, 접수처 위치예요. 핀이나 목록을 누르면 위치를 보여 드려요.</p>
+      <p className="muted">낚시터, 체험장, 먹거리, 접수처를 지도에서 찾아보세요.</p>
 
       <MapView markers={markers} focus={focus} height={340} label="축제장 장소 지도" fitKey={filter} />
       <Legend />
@@ -82,7 +82,7 @@ export default function FestivalPage() {
       </div>
 
       {error && !places && <p className="alert">{error.message}</p>}
-      {!places && !error && <p className="muted">불러오는 중</p>}
+      {!places && !error && <p className="muted">불러오는 중…</p>}
 
       <ul className="place-list">
         {shown.map((p) => {
@@ -104,8 +104,7 @@ export default function FestivalPage() {
       </ul>
 
       <p className="fine">
-        2026 산천어축제(재단법인 나라) 행사장 안내도·체험료 기준이에요. 2027 축제에서 바뀔 수 있어요.
-        위치는 안내도를 지도에 옮긴 근사값(약 100m 오차)이에요.
+        2026년 축제 안내도와 요금 기준이라 올해는 조금 달라질 수 있어요. 지도 위치는 대략적인 위치예요.
       </p>
     </Layout>
   )
