@@ -6,7 +6,8 @@ KNU RE:RISE 7팀. 축제 임시주차장 남은 자리 표시(입·출구 센서
 ## 구조
 - `backend/` Spring Boot 4 · Java 21 · Gradle. 패키지 `kr.parkingmate.{lot,sensor,shuttle,place,common}`. DB 스키마/시드는 Flyway `src/main/resources/db/migration`.
 - `frontend/` React + Vite. 페이지 `src/pages`, API 호출 `src/api.js`.
-- `sensor/` 노트북 브리지(STM32 시리얼·Pico HTTP → 백엔드 JSON), 시뮬레이터.
+- `hardware/` **실물 센서 코드(박서빈, 현재 사용)**: STM32·Pico 펌웨어(protocol 3, eventId·ACK), 노트북 브리지(SQLite 저장·재전송), 현장 카운터, 웹 연결 창. 설명은 `hardware/README.md`, 웹 쪽 요청은 `hardware/웹담당자_전달사항.txt`.
+- `sensor/` 구형 예시 브리지·시뮬레이터(시뮬레이터만 계속 사용). 새 보드 프로그램과 섞지 않음.
 
 ## 명령
 - 백엔드 실행(로컬 H2, DB 설치 불필요): `cd backend && ./gradlew bootRun` → http://localhost:8787

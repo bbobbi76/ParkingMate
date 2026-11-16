@@ -1,5 +1,7 @@
 # AGENTS.md (Codex 등 코딩 에이전트용)
 
+> 2026-11-16부터 실물 센서 코드는 `hardware/`(박서빈)가 기준이다. 아래 `sensor/` 규칙은 구형 예시용. `hardware/AGENTS.md` 를 따른다.
+
 프로젝트 규칙과 실행 방법은 [CLAUDE.md](CLAUDE.md)와 같다. 먼저 읽을 것:
 - 전체 기획·ERD·API: `docs/기획문서.md`
 - 센서 작업(박서빈 담당): `docs/하드웨어_전달_박서빈.md`
