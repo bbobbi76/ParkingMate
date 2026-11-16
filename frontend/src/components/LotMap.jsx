@@ -22,7 +22,7 @@ function markerHtml(lot, selected) {
 const festivalHtml = `<div class="pin festival"><b>축제장</b></div>`
 
 let kakaoPromise
-function loadKakao() {
+export function loadKakao() {
   if (!KAKAO_KEY) return Promise.reject(new Error('no key'))
   kakaoPromise ??= new Promise((resolve, reject) => {
     const s = document.createElement('script')

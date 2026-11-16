@@ -25,8 +25,19 @@ export function walkMinutes(lot) {
   return Math.max(1, Math.round((distanceMeters(lot, FESTIVAL) * 1.3) / 65))
 }
 
-export function kakaoDirections(lot) {
-  return `https://map.kakao.com/link/to/${encodeURIComponent(lot.name)},${lot.lat},${lot.lng}`
+/** 카카오맵 길찾기: 지금 내 위치 → 목적지 (휴대폰에 카카오맵 앱이 있으면 앱으로 열림). */
+export function kakaoDirections(place) {
+  return `https://map.kakao.com/link/to/${encodeURIComponent(place.name)},${place.lat},${place.lng}`
+}
+
+/** 축제장 장소 분류: 지도 핀 색(cls)과 화면 이름. */
+export const PLACE_CATEGORY = {
+  FISHING: { word: '낚시', cls: 'c-fish' },
+  SNOW: { word: '눈·얼음 체험', cls: 'c-snow' },
+  CULTURE: { word: '볼거리', cls: 'c-culture' },
+  FOOD: { word: '먹거리', cls: 'c-food' },
+  INFO: { word: '안내·접수', cls: 'c-info' },
+  ETC: { word: '기타', cls: 'c-etc' },
 }
 
 export function hhmm(t) {

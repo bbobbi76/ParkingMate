@@ -6,6 +6,7 @@ import './style.css'
 import Home from './pages/Home.jsx'
 import LotPage from './pages/LotPage.jsx'
 import ShuttlePage from './pages/ShuttlePage.jsx'
+import FestivalPage from './pages/FestivalPage.jsx'
 import AdminPage from './pages/AdminPage.jsx'
 
 function NotFound() {
@@ -24,6 +25,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/" element={<Home />} />
         <Route path="/p/:code" element={<LotPage />} />
         <Route path="/shuttle" element={<ShuttlePage />} />
+        <Route path="/festival" element={<FestivalPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -38,6 +38,7 @@ export const api = {
   },
   lot: (code) => request(`/lots/${encodeURIComponent(code)}`),
   shuttle: () => request('/shuttle'),
+  places: () => request('/places'),
 
   admin: {
     summary: (k) => request('/admin/summary', { adminKey: k }),
@@ -45,5 +46,8 @@ export const api = {
     events: (k, code) => request(`/admin/lots/${encodeURIComponent(code)}/events?limit=20`, { adminKey: k }),
     sensors: (k, code) => request(`/admin/lots/${encodeURIComponent(code)}/sensors`, { adminKey: k }),
     demoReset: (k) => request('/admin/demo/reset', { method: 'POST', adminKey: k }),
+    addPlace: (k, body) => request('/admin/places', { method: 'POST', body, adminKey: k }),
+    updatePlace: (k, id, body) => request(`/admin/places/${id}`, { method: 'PATCH', body, adminKey: k }),
+    deletePlace: (k, id) => request(`/admin/places/${id}`, { method: 'DELETE', adminKey: k }),
   },
 }

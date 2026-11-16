@@ -1,10 +1,10 @@
 # 화천 Parking Mate — 작업 규칙
 
-KNU RE:RISE 7팀. 축제 임시주차장 남은 자리 표시(입·출구 센서 집계) + 셔틀 안내. QR·무료이용권은 2026-11-16 팀 결정으로 제외. 상세 기획·ERD·API: `docs/기획문서.md`.
+KNU RE:RISE 7팀. 축제 임시주차장 남은 자리 표시(입·출구 센서 집계) + 셔틀 안내(시간표 기준 예상 위치·남은 시간) + 축제장 장소 지도. 이용권 발급·QR은 2026-11-16 팀 결정으로 제외하고, 먼 주차장 이용권은 "화천군 지급(검토 중)" 안내만 표시. 상세 기획·ERD·API: `docs/기획문서.md`.
 마감: 2026-11-17(화) 웹·센서·시연·PPT, 발표 2026-11-21(토) 화천군청 멘토 대상.
 
 ## 구조
-- `backend/` Spring Boot 4 · Java 21 · Gradle. 패키지 `kr.parkingmate.{lot,sensor,shuttle,common}`. DB 스키마/시드는 Flyway `src/main/resources/db/migration`.
+- `backend/` Spring Boot 4 · Java 21 · Gradle. 패키지 `kr.parkingmate.{lot,sensor,shuttle,place,common}`. DB 스키마/시드는 Flyway `src/main/resources/db/migration`.
 - `frontend/` React + Vite. 페이지 `src/pages`, API 호출 `src/api.js`.
 - `sensor/` 노트북 브리지(STM32 시리얼·Pico HTTP → 백엔드 JSON), 시뮬레이터.
 

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '../api.js'
 import { LEVEL, usePolling } from '../lib.js'
+import AdminPlaces from './AdminPlaces.jsx'
 
 const KEY = 'pm.adminKey'
 const STATUS = [
@@ -204,6 +205,7 @@ function LotsTab({ adminKey }) {
 
 export default function AdminPage() {
   const [adminKey, setAdminKey] = useState(readKey)
+  const [tab, setTab] = useState(() => (new URLSearchParams(location.search).get('tab') === 'places' ? 'places' : 'lots'))
   if (!adminKey) return <Login onLogin={setAdminKey} />
   return (
     <>
@@ -224,9 +226,19 @@ export default function AdminPage() {
             나가기
           </button>}
         </div>
+        <nav className="tabs">
+          {[
+            ['lots', '주차장'],
+            ['places', '축제장 장소'],
+          ].map(([k, label]) => (
+            <button key={k} className={tab === k ? 'active' : ''} onClick={() => setTab(k)}>
+              {label}
+            </button>
+          ))}
+        </nav>
       </header>
       <main className="page">
-        <LotsTab adminKey={adminKey} />
+        {tab === 'lots' ? <LotsTab adminKey={adminKey} /> : <AdminPlaces adminKey={adminKey} />}
       </main>
     </>
   )
