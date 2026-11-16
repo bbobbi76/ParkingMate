@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api.js'
-import { LEVEL, usePolling } from '../lib.js'
+import { LEVEL, kakaoDirections, usePolling } from '../lib.js'
 import Layout from '../components/Layout.jsx'
 import LotMap from '../components/LotMap.jsx'
 
@@ -42,10 +42,34 @@ function LotRow({ lot, selected, onSelect }) {
   )
 }
 
+/** 고른 주차장: 화면 아래에 붙는 띠. 길찾기·자세히 버튼을 크게. */
+function SelectedBar({ lot, onClose }) {
+  const lv = LEVEL[lot.level] ?? LEVEL.UNKNOWN
+  const showNum = lot.remaining != null && lot.level !== 'CLOSED' && lot.level !== 'FULL'
+  return (
+    <section className="pick-bar" aria-label={`${lot.name} 선택됨`}>
+      <div className="pick-head">
+        <strong>{lot.name.replace(/ ?임시주차장$/, '')}</strong>
+        <span className={`st ${lv.cls}`}>{showNum ? `남은 자리 ${lot.remaining} · ${lv.word}` : lv.word === '확인 중' ? '정보없음' : lv.word}</span>
+        <button className="pick-close" onClick={onClose} aria-label="닫기">닫기</button>
+      </div>
+      <div className="pick-actions">
+        <a className="btn primary" href={kakaoDirections(lot)} target="_blank" rel="noreferrer">
+          카카오맵 길찾기
+        </a>
+        <Link className="btn ghost" to={`/p/${lot.code}`}>
+          자세히
+        </Link>
+      </div>
+    </section>
+  )
+}
+
 export default function Home() {
   const { data: board, error } = usePolling(api.board, 10000)
   const lots = board?.lots
-  const [selected, setSelected] = useState(null)
+  // ?lot=wirari 로 들어오면 그 주차장을 고른 상태로 시작 (링크 공유·시연용)
+  const [selected, setSelected] = useState(() => new URLSearchParams(window.location.search).get('lot'))
   const [filter, setFilter] = useState('all')
 
   const select = useCallback((code) => {
@@ -56,6 +80,7 @@ export default function Home() {
   const all = lots ?? []
   const shown = all.filter((l) => (filter === 'open' ? l.level === 'AVAILABLE' : filter === 'shuttle' ? !!l.shuttleStop : true))
   const count = (lv) => all.filter((l) => l.level === lv).length
+  const selectedLot = all.find((l) => l.code === selected)
   const benefitLots = all.filter((l) => l.incentive)
 
   return (
@@ -103,6 +128,9 @@ export default function Home() {
           <LotRow key={lot.code} lot={lot} selected={lot.code === selected} onSelect={select} />
         ))}
       </ul>
+      {!selectedLot && lots && <p className="fine">지도나 목록에서 주차장을 고르면 길찾기 버튼이 나와요.</p>}
+      {selectedLot && <div className="pick-space" aria-hidden />}
+      {selectedLot && <SelectedBar lot={selectedLot} onClose={() => setSelected(null)} />}
     </Layout>
   )
 }

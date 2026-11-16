@@ -5,7 +5,7 @@
 - 센서 작업(박서빈 담당): `docs/하드웨어_전달_박서빈.md`
 
 ## Git 규칙
-main에 직접 push 하지 않는다. 브랜치에서 작업하고 풀리퀘스트로만 합친다(자세한 순서는 CLAUDE.md "Git 규칙"). PR은 만들기까지만 하고, 합치기는 사람이 승인한 뒤에 한다.
+PR 없이 main 에 바로 커밋·push 한다(바로 배포됨). push 전에 테스트·빌드 통과와 비밀값 미포함을 확인한다(자세히는 CLAUDE.md "Git 규칙").
 
 ## 센서(sensor/) 작업 범위
 - 수정 대상: `sensor/stm32_entry/*.ino`, `sensor/pico_exit/main.py`. 핀 번호, `BROKEN` 논리값, 디바운스·타임아웃만 실측에 맞게 바꾼다.
