@@ -55,6 +55,53 @@ public class ParkingLot {
 
     protected ParkingLot() {}
 
+    /** 현장 관리 화면에서 새로 추가하는 주차장. */
+    public ParkingLot(String code, String name, Category category, double lat, double lng,
+                      Integer capacity, int sortOrder, Instant now) {
+        this.code = code;
+        this.name = name;
+        this.category = category;
+        this.lat = lat;
+        this.lng = lng;
+        this.coordSource = "현장 관리 화면에서 지정";
+        this.capacity = capacity;
+        this.capacitySource = capacity != null ? "현장 관리 화면에서 입력" : null;
+        this.manualStatus = ManualStatus.AUTO;
+        this.incentive = category == Category.REMOTE;
+        this.dataSource = "현장 관리 화면에서 추가";
+        this.sortOrder = sortOrder;
+        this.updatedAt = now;
+    }
+
+    public void rename(String value, Instant now) {
+        name = value;
+        updatedAt = now;
+    }
+
+    public void moveTo(double newLat, double newLng, Instant now) {
+        lat = newLat;
+        lng = newLng;
+        coordSource = "현장 관리 화면에서 지정";
+        updatedAt = now;
+    }
+
+    public void setCapacity(Integer value, Instant now) {
+        capacity = value;
+        capacitySource = value != null ? "현장 관리 화면에서 입력" : null;
+        updatedAt = now;
+    }
+
+    public void setCategory(Category value, Instant now) {
+        category = value;
+        incentive = value == Category.REMOTE;
+        updatedAt = now;
+    }
+
+    public void setShuttleStop(String value, Instant now) {
+        shuttleStop = value == null || value.isBlank() ? null : value.trim();
+        updatedAt = now;
+    }
+
     /** 눈 등으로 줄어든 운영 가능 면수가 있으면 그것을, 없으면 전체 면수를 쓴다. */
     public Integer effectiveCapacity() {
         return operableCapacity != null ? operableCapacity : capacity;

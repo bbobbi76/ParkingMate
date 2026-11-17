@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { api } from '../api.js'
 import { LEVEL, usePolling } from '../lib.js'
 import AdminPlaces from './AdminPlaces.jsx'
+import AdminLots from './AdminLots.jsx'
 import LotMap from '../components/LotMap.jsx'
 
 const KEY = 'pm.adminKey'
@@ -93,12 +94,22 @@ function LotRow({ lot, adminKey, onChanged }) {
         </h3>
         <span className={`badge ${lv.cls}`}>{lv.word}</span>
       </div>
+      <p className="remain-line">
+        {lot.remaining != null ? (
+          <>
+            남은 자리 <strong>{lot.remaining}</strong>
+            <small> / {lot.operableCapacity ?? lot.capacity}면</small>
+          </>
+        ) : (
+          <small>면수를 몰라 남은 자리는 계산하지 않아요 (주차장 위치·추가 탭에서 면수 입력)</small>
+        )}
+      </p>
       <div className="counter">
         <button className="btn" onClick={() => send({ delta: -10 })}>−10</button>
         <button className="btn" onClick={() => send({ delta: -1 })}>−1</button>
         <div className="count">
           <strong>{lot.currentCount}</strong>
-          <small>{lot.capacity != null ? ` / ${lot.operableCapacity ?? lot.capacity}대` : '대 (면수 미확인)'}</small>
+          <small>대 들어옴</small>
         </div>
         <button className="btn" onClick={() => send({ delta: 1 })}>+1</button>
         <button className="btn" onClick={() => send({ delta: 10 })}>+10</button>
@@ -153,11 +164,10 @@ function LotsTab({ adminKey }) {
     <>
       <section className="card">
         <h2>주차장 지도</h2>
-        <p className="muted">지금 차량 수예요. 5초마다 바뀌고, 핀을 누르면 그 주차장 조정 칸으로 가요.</p>
+        <p className="muted">첫 화면과 같은 남은 자리예요. 5초마다 바뀌고, 핀을 누르면 그 주차장 조정 칸으로 가요.</p>
         <LotMap
           lots={lots}
           selected={picked}
-          mode="count"
           height={320}
           onSelect={(code) => {
             setPicked(code)
@@ -198,7 +208,7 @@ function LotsTab({ adminKey }) {
 
       <section className="card">
         <h2>시연 초기화</h2>
-        <p className="muted">리허설 때 쌓인 센서 기록을 지우고, 위라리 둔치 차량 수를 처음 값으로 돌려요.</p>
+        <p className="muted">리허설 때 쌓인 센서 기록을 지우고, 평생학습관은 남은 자리 50, 위라리 둔치는 처음 값으로 돌려요.</p>
         {msg && <p className="alert info">{msg}</p>}
         <button
           className="btn big"
@@ -221,7 +231,10 @@ function LotsTab({ adminKey }) {
 
 export default function AdminPage() {
   const [adminKey, setAdminKey] = useState(readKey)
-  const [tab, setTab] = useState(() => (new URLSearchParams(location.search).get('tab') === 'places' ? 'places' : 'lots'))
+  const [tab, setTab] = useState(() => {
+    const t = new URLSearchParams(location.search).get('tab')
+    return t === 'places' || t === 'edit' ? t : 'lots'
+  })
   if (!adminKey) return <Login onLogin={setAdminKey} />
   return (
     <>
@@ -245,6 +258,7 @@ export default function AdminPage() {
         <nav className="tabs">
           {[
             ['lots', '주차장'],
+            ['edit', '주차장 위치·추가'],
             ['places', '축제장 장소'],
           ].map(([k, label]) => (
             <button key={k} className={tab === k ? 'active' : ''} onClick={() => setTab(k)}>
@@ -254,7 +268,9 @@ export default function AdminPage() {
         </nav>
       </header>
       <main className="page">
-        {tab === 'lots' ? <LotsTab adminKey={adminKey} /> : <AdminPlaces adminKey={adminKey} />}
+        {tab === 'lots' && <LotsTab adminKey={adminKey} />}
+        {tab === 'edit' && <AdminLots adminKey={adminKey} />}
+        {tab === 'places' && <AdminPlaces adminKey={adminKey} />}
       </main>
     </>
   )

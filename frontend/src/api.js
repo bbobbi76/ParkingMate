@@ -42,6 +42,7 @@ export const api = {
 
   admin: {
     summary: (k) => request('/admin/summary', { adminKey: k }),
+    addLot: (k, body) => request('/admin/lots', { method: 'POST', body, adminKey: k }),
     updateLot: (k, code, body) => request(`/admin/lots/${encodeURIComponent(code)}`, { method: 'PATCH', body, adminKey: k }),
     events: (k, code) => request(`/admin/lots/${encodeURIComponent(code)}/events?limit=20`, { adminKey: k }),
     sensors: (k, code) => request(`/admin/lots/${encodeURIComponent(code)}/sensors`, { adminKey: k }),

@@ -188,6 +188,9 @@ input:focus, select:focus { border-color: var(--navy); }
 .count { text-align: center; }
 .count strong { font-size: 1.8rem; }
 .count small { color: var(--ink-3); }
+.remain-line { margin: 10px 0 0; font-size: 1.1rem; }
+.remain-line strong { font-size: 2.4rem; color: var(--navy, #1d2f6f); margin: 0 4px; }
+.remain-line small { color: var(--ink-3); }
 .seg { display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
 .seg button { min-height: 46px; border: 0; border-right: 1px solid var(--line); background: #fff; font-weight: 700; font-size: .85rem; color: var(--ink-2); cursor: pointer; }
 .seg button:last-child { border-right: 0; }

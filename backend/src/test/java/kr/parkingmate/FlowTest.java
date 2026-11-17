@@ -67,6 +67,34 @@ class FlowTest {
     }
 
     @Test
+    void staffCanAddLotAndMoveIt() throws Exception {
+        String body = "{\"name\":\"새 임시주차장\",\"category\":\"REMOTE\",\"capacity\":80,\"lat\":38.1,\"lng\":127.7,\"shuttleStop\":\"화천체육관\"}";
+        mvc.perform(post("/api/admin/lots").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isUnauthorized());
+        String created = mvc.perform(post("/api/admin/lots").header("X-Admin-Key", "test-admin")
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.remaining", is(80)))
+                .andExpect(jsonPath("$.incentive", is(true)))
+                .andReturn().getResponse().getContentAsString();
+        String code = created.replaceAll(".*\"code\":\"([^\"]+)\".*", "$1");
+        mvc.perform(get("/api/lots")).andExpect(jsonPath("$", hasSize(14)));
+        // 평생학습관 위치 옮기기 + 면수 50 그대로
+        mvc.perform(patch("/api/admin/lots/learning-center").header("X-Admin-Key", "test-admin")
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"lat\":38.1101,\"lng\":127.7102}"))
+                .andExpect(jsonPath("$.lat", is(38.1101)))
+                .andExpect(jsonPath("$.coordSource", is("현장 관리 화면에서 지정")))
+                .andExpect(jsonPath("$.remaining", is(50)));
+        // 화천군 밖 좌표는 거부
+        mvc.perform(patch("/api/admin/lots/" + code).header("X-Admin-Key", "test-admin")
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"lat\":37.5,\"lng\":127.0}"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(patch("/api/admin/lots/" + code).header("X-Admin-Key", "test-admin")
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"capacity\":60}"))
+                .andExpect(jsonPath("$.remaining", is(60)));
+    }
+
+    @Test
     void demoFlowFiftyThenFortyNineThenFifty() throws Exception {
         sensor("{\"events\":[{\"deviceId\":\"entry-stm32\",\"seq\":101,\"direction\":\"IN\"}]}");
         mvc.perform(get("/api/lots/learning-center")).andExpect(jsonPath("$.remaining", is(49)));
