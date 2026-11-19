@@ -136,6 +136,7 @@ class FlowTest {
                 .andExpect(status().is4xxClientError());
         // 발급 기능은 없고, "이 주차장에 대면 이용권(화천군 지급)" 안내용 표시만 남음
         mvc.perform(get("/api/lots/wirari")).andExpect(jsonPath("$.incentive", is(true)));
+        mvc.perform(get("/api/lots/learning-center")).andExpect(jsonPath("$.incentive", is(true)));
         mvc.perform(get("/api/lots/hwacheon-elem")).andExpect(jsonPath("$.incentive", is(false)));
     }
 
