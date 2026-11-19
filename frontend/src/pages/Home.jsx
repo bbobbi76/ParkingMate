@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api.js'
-import { LEVEL, kakaoDirections, usePolling, walkMinutes } from '../lib.js'
+import { LEVEL, kakaoDirections, usePolling } from '../lib.js'
 import Layout from '../components/Layout.jsx'
 import LotMap from '../components/LotMap.jsx'
 
@@ -71,38 +71,6 @@ function SelectedBar({ lot, onClose }) {
   )
 }
 
-/** 지금 대기 좋은 곳 하나: 여유 + 일반 차량용, 이용권 주는 곳·남은 자리 많은 곳 먼저. */
-function pickBest(lots) {
-  const ok = lots.filter((l) => l.level === 'AVAILABLE' && l.category !== 'ACCESSIBLE' && l.category !== 'CAMPING')
-  return ok.sort(
-    (a, b) =>
-      (b.incentive ? 1 : 0) - (a.incentive ? 1 : 0) ||
-      (b.remaining ?? -1) - (a.remaining ?? -1) ||
-      (b.shuttleStop ? 1 : 0) - (a.shuttleStop ? 1 : 0),
-  )[0]
-}
-
-function Recommend({ lot }) {
-  return (
-    <section className="recommend">
-      <div className="rec-main">
-        <Link to={`/p/${lot.code}`} className="rec-name">
-          {lot.name.replace(/ ?임시주차장$/, '')}
-        </Link>
-        {lot.remaining != null && (
-          <span className="rec-num">
-            <b>{lot.remaining}</b>자리 남음
-          </span>
-        )}
-      </div>
-      <p className="rec-sub">{lot.shuttleStop ? `셔틀 정류장: ${lot.shuttleStop}` : `축제장까지 걸어서 약 ${walkMinutes(lot)}분`}</p>
-      <a className="btn primary big rec-btn" href={kakaoDirections(lot)} target="_blank" rel="noreferrer">
-        카카오맵 길찾기
-      </a>
-    </section>
-  )
-}
-
 export default function Home() {
   const { data: board, error } = usePolling(api.board, 10000)
   const lots = board?.lots
@@ -122,7 +90,6 @@ export default function Home() {
   const count = (lv) => all.filter((l) => l.level === lv).length
   const selectedLot = all.find((l) => l.code === selected)
   const benefitLots = all.filter((l) => l.incentive)
-  const best = pickBest(all)
 
   return (
     <Layout>
@@ -158,9 +125,7 @@ export default function Home() {
         </p>
       )}
 
-      {best && <Recommend lot={best} />}
-
-      {benefitLots.length > 0 && !best?.incentive && (
+      {benefitLots.length > 0 && (
         <p className="notice">
           <b>이용권 드려요</b>
           <span>
